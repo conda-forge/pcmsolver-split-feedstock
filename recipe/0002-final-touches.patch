@@ -1,0 +1,86 @@
+From 0dd69d0cb4bfb35942574ebef777d1023916e7ff Mon Sep 17 00:00:00 2001
+From: "Lori A. Burns" <lori.burns@gmail.com>
+Date: Tue, 30 May 2023 23:07:42 -0400
+Subject: [PATCH 1/2] final touches
+
+---
+ cmake/PCMSolverConfig.cmake.in | 8 ++++----
+ cmake/custom/pcmsolver.cmake   | 6 +++---
+ src/CMakeLists.txt             | 2 +-
+ 3 files changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/cmake/PCMSolverConfig.cmake.in b/cmake/PCMSolverConfig.cmake.in
+index fdc0fbcb..12e465a0 100644
+--- a/cmake/PCMSolverConfig.cmake.in
++++ b/cmake/PCMSolverConfig.cmake.in
+@@ -7,7 +7,7 @@
+ # ::
+ #
+ #   PCMSolver_FOUND - true if PCMSolver and all required components found on the system
+-#   PCMSolver_VERSION - PCMSolver version in format Major.Minor.Release. Prefer target variable.
++#   PCMSolver_VERSION - PCMSolver version in format Major.Minor.Release.
+ #   PCMSolver_INCLUDE_DIRS - Directory where the PCMSolver/pcmsolver.h,
+ #                            PCMSolver/PCMInput.h headers and PCMSolver/pcmsolver.f90 source file are located.
+ #                            Prefer targets.
+@@ -25,10 +25,10 @@
+ #
+ # ::
+ #
+-#   PCMSolver_VERSION - PCMSolver version in format Major.Minor.Release
++#   PCMSolver_VERSION - (DNE) PCMSolver version in format Major.Minor.Release . Does not exist b/c computed at compile-time.
+ #   PCMSolver_PYMOD - path to PCMSolver python modules
+ #
+-#   get_property(_ver TARGET PCMSolver::pcm PROPERTY PCMSolver_VERSION)
++#   get_property(_pym TARGET PCMSolver::pcm PROPERTY PCMSolver_PYMOD)
+ #
+ #
+ # Available components: shared static exe
+@@ -143,7 +143,7 @@ if(NOT TARGET ${pcm}::pcm)
+ 
+         get_property(_ver TARGET ${pcm}::pcm PROPERTY PCMSolver_VERSION)
+         get_property(_pym TARGET ${pcm}::pcm PROPERTY PCMSolver_PYMOD)
+-        message(VERBOSE "${pcm}::pcm.${pcm}_VERSION ${_ver}")
++        message(VERBOSE "${pcm}::pcm.${pcm}_VERSION (DNE) ${_ver}")
+         message(VERBOSE "${pcm}::pcm.${pcm}_PYMOD   ${_pym}")
+ 
+         message(VERBOSE "${pcm}_FOUND                  ${${pcm}_FOUND}")
+diff --git a/cmake/custom/pcmsolver.cmake b/cmake/custom/pcmsolver.cmake
+index 9bfe9c5e..da5f4906 100644
+--- a/cmake/custom/pcmsolver.cmake
++++ b/cmake/custom/pcmsolver.cmake
+@@ -1,6 +1,7 @@
+ option(ENABLE_LOGGER "Enable logger" OFF)
+ option(ENABLE_TIMER "Enable timer" ON)
+ option(BUILD_STANDALONE "Enable build of standalone executables" ON)
++option_with_default(PCMSolver_INSTALL_CMAKEDIR "Directory to which PCMSolver CMake config files installed." share/cmake/${PROJECT_NAME})
+ 
+ # Add definitions
+ if(ENABLE_TIMER)
+@@ -18,9 +19,8 @@ include(GNUInstallDirs)
+ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
+ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
+ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_BINDIR})
+-# Hardcode to share, rather than use CMAKE_INSTALL_DATAROOTDIR as the latter
+-# might resolve to a place not recognized by CMake
+-set(CMAKECONFIG_INSTALL_DIR "share/cmake/${PROJECT_NAME}")
++
++set(CMAKECONFIG_INSTALL_DIR "${PCMSolver_INSTALL_CMAKEDIR}")
+ 
+ if(NOT DEFINED PYMOD_INSTALL_LIBDIR)
+   message(STATUS "Setting (unspecified) option PYMOD_INSTALL_LIBDIR: /python")
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index 06f65600..9afff3a3 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -42,7 +42,7 @@ add_subdirectory(solver)
+ add_subdirectory(utils)
+ 
+ set(export_properties
+-  "PCMSolver_VERSION"
++  #"PCMSolver_VERSION" (can't be added b/c not available at configure-time)
+   "PCMSolver_PYMOD"
+   )
+ 
+-- 
+2.40.1
+

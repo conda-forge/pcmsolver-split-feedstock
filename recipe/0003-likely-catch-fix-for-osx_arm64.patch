@@ -1,0 +1,29 @@
+From bd9d1de5d9a7ea8b129235f4b8c2308cf4d17ef8 Mon Sep 17 00:00:00 2001
+From: "Lori A. Burns" <lori.burns@gmail.com>
+Date: Wed, 31 May 2023 00:42:06 -0400
+Subject: [PATCH 2/2] likely catch fix for osx_arm64
+
+---
+ external/Catch/catch.hpp | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/external/Catch/catch.hpp b/external/Catch/catch.hpp
+index 849c53c1..b5099474 100644
+--- a/external/Catch/catch.hpp
++++ b/external/Catch/catch.hpp
+@@ -2056,8 +2056,10 @@ namespace Catch{
+         #define CATCH_TRAP() \
+                 __asm__("li r0, 20\nsc\nnop\nli r0, 37\nli r4, 2\nsc\nnop\n" \
+                 : : : "memory","r0","r3","r4" ) /* NOLINT */
+-    #else
+-        #define CATCH_TRAP() __asm__("int $3\n" : : /* NOLINT */ )
++    #elif defined(__i386__) || defined(__x86_64__)
++        #define CATCH_TRAP() __asm__("int $3\n" : : ) /* NOLINT */
++    #elif defined(__aarch64__)
++        #define CATCH_TRAP()  __asm__(".inst 0xd4200000")
+     #endif
+ 
+ #elif defined(CATCH_PLATFORM_LINUX)
+-- 
+2.40.1
+

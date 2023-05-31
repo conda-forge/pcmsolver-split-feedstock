@@ -11,6 +11,8 @@ source:
   url: https://github.com/{{ name }}/{{ name|lower }}/archive/v{{ version }}.tar.gz
   patches:
     - 0001-update-cmake-adapt-for-win-add-licenses.patch
+    - 0002-final-touches.patch
+    - 0003-likely-catch-fix-for-osx_arm64.patch
   sha256: {{ sha256 }}
 
 build:
