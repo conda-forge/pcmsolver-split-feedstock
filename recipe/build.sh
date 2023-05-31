@@ -36,5 +36,7 @@ rm ${PREFIX}/share/cmake/PCMSolver/PCMSolverTargets-static.cmake
 rm ${PREFIX}/lib/libpcm.a
 
 cd build
-ctest --rerun-failed --output-on-failure -j${CPU_COUNT}
+if [[ "${CONDA_BUILD_CROSS_COMPILATION:-}" != "1" || "${CROSSCOMPILING_EMULATOR}" != "" ]]; then
+    ctest --rerun-failed --output-on-failure -j${CPU_COUNT}
+fi
 
