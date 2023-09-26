@@ -1,7 +1,7 @@
 {% set name = "PCMSolver" %}
 {% set version = "1.2.3" %}
 {% set sha256 = "d1ef6bdc268a2e719b36c85125c3543df7a26e1a738daf4483f4ded0c76f5b60" %}
-{% set build = 4 %}
+{% set build = 5 %}
 
 package:
   name: {{ name|lower }}-split
@@ -68,12 +68,6 @@ outputs:
       requires:
         - m2w64-binutils                                               # [win]   # provides objdump.exe
       commands:
-        - ls -l $PREFIX/lib                                            # [unix]
-        - ls -l $PREFIX/share/cmake/PCMSolver                          # [unix]
-        - ls -l $SP_DIR/pcmsolver                                      # [unix]
-        - dir %PREFIX%\\Library\\lib                                   # [win]
-        - dir %PREFIX%\\Library\\share\\cmake\\pcmsolver               # [win]
-        - dir %SP_DIR%\\pcmsolver                                      # [win]
         # Verify library
         - test -L $PREFIX/lib/libpcm$SHLIB_EXT                         # [unix]
         - test ! -f $PREFIX/lib/libpcm.a                               # [unix]
