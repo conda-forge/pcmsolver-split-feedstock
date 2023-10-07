@@ -2,7 +2,12 @@
 
 set -ex
 
-${BUILD_PREFIX}/bin/cmake ${CMAKE_ARGS} \
+ARCH_ARGS=""
+if [ "$(uname)" == "Darwin" ]; then
+    CXXFLAGS="-D_LIBCPP_ENABLE_CXX17_REMOVED_UNARY_BINARY_FUNCTION=1 ${CXXFLAGS}"
+fi
+
+${BUILD_PREFIX}/bin/cmake ${CMAKE_ARGS} ${ARCH_ARGS} \
   -S ${SRC_DIR} \
   -B build \
   -G "Ninja" \
