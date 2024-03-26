@@ -1,9 +1,11 @@
+c_stdlib:
+- vs
 channel_sources:
 - conda-forge
 channel_targets:
 - conda-forge main
 libboost_devel:
-- '1.82'
+- '1.84'
 m2w64_c_compiler:
 - m2w64-toolchain
 m2w64_fortran_compiler:
