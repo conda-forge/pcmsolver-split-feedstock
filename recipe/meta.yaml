@@ -1,7 +1,7 @@
 {% set name = "PCMSolver" %}
 {% set version = "1.2.3" %}
 {% set sha256 = "d1ef6bdc268a2e719b36c85125c3543df7a26e1a738daf4483f4ded0c76f5b60" %}
-{% set build = 8 %}
+{% set build = 9 %}
 
 package:
   name: {{ name|lower }}-split
@@ -25,9 +25,11 @@ requirements:
     - python                              # [build_platform != target_platform]
     - cross-python_{{ target_platform }}  # [build_platform != target_platform]
     - {{ compiler('c') }}                 # [unix]
+    - {{ stdlib("c") }}                   # [unix]
     - {{ compiler('cxx') }}               # [unix]
     - {{ compiler('fortran') }}           # [unix]
     - {{ compiler('m2w64_c') }}           # [win]
+    - {{ stdlib("c") }}                   # [win]
     - {{ compiler('m2w64_fortran') }}     # [win]
     - cmake
     - ninja
@@ -50,6 +52,8 @@ outputs:
         - {{ pin_subpackage('pcmsolver', max_pin='x.x.x') }}
         - {{ pin_subpackage('libpcm', max_pin='x.x.x') }}
     requirements:
+      build:
+        - {{ stdlib("c") }}
       host:
         - python
       run:
@@ -104,9 +108,11 @@ outputs:
     requirements:
       build:
         - {{ compiler('c') }}              # [unix]
+        - {{ stdlib("c") }}                # [unix]
         - {{ compiler('cxx') }}            # [unix]
         - {{ compiler('fortran') }}        # [unix]
         - {{ compiler('m2w64_c') }}        # [win]
+        - {{ stdlib("c") }}                # [win]
         - {{ compiler('m2w64_fortran') }}  # [win]
       host:
         - libboost-headers
