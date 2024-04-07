@@ -52,8 +52,6 @@ outputs:
         - {{ pin_subpackage('pcmsolver', max_pin='x.x.x') }}
         - {{ pin_subpackage('libpcm', max_pin='x.x.x') }}
     requirements:
-      build:
-        - {{ stdlib("c") }}
       host:
         - python
       run:
