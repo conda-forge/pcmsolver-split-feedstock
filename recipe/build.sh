@@ -11,7 +11,6 @@ fi
 ${BUILD_PREFIX}/bin/cmake ${CMAKE_ARGS} ${ARCH_ARGS} \
   -S ${SRC_DIR} \
   -B build \
-  -G "Ninja" \
   -D CMAKE_INSTALL_PREFIX=${PREFIX} \
   -D CMAKE_BUILD_TYPE=Release \
   -D CMAKE_C_COMPILER=${CC} \
@@ -31,6 +30,9 @@ ${BUILD_PREFIX}/bin/cmake ${CMAKE_ARGS} ${ARCH_ARGS} \
   -D ENABLE_LOGGER=OFF \
   -D BUILD_STANDALONE=ON \
   -D ENABLE_CXX11_SUPPORT=ON
+
+# using make b/c VersionInfo suddenly not getting generated in time on Linux with Ninja
+#  -G "Ninja"
 
 cmake --build build --target install -j${CPU_COUNT}
 
