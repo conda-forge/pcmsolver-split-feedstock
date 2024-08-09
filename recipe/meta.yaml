@@ -35,7 +35,8 @@ requirements:
     - {{ stdlib("c") }}                   # [win]
     - {{ compiler('m2w64_fortran') }}     # [win]
     - cmake
-    - ninja
+    - make                                # [unix]
+    - ninja                               # [win]
   host:
     - libboost-devel
     - eigen
