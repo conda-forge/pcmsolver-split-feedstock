@@ -1,0 +1,32 @@
+From 79d6790827d560033969e085b502a71b269e5d1c Mon Sep 17 00:00:00 2001
+From: "Lori A. Burns" <lori.burns@gmail.com>
+Date: Fri, 9 Aug 2024 01:47:34 -0400
+Subject: [PATCH 2/2] posdef error into warning
+
+---
+ src/bi_operators/IBoundaryIntegralOperator.cpp | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/src/bi_operators/IBoundaryIntegralOperator.cpp b/src/bi_operators/IBoundaryIntegralOperator.cpp
+index 70ec942b..c1d672cc 100644
+--- a/src/bi_operators/IBoundaryIntegralOperator.cpp
++++ b/src/bi_operators/IBoundaryIntegralOperator.cpp
+@@ -45,10 +45,14 @@ Eigen::MatrixXd IBoundaryIntegralOperator::computeS(
+     errmsg << "S matrix is not positive-definite!" << std::endl;
+     errmsg << "Consider changing the average area of the cavity finite elements."
+            << std::endl;
++    errmsg << "Normally an error, this has been commuted to a warning via patch."
++           << std::endl;
+     errmsg
+-        << "Please report this issue: https://github.com/PCMSolver/pcmsolver/issues"
++        << "Please report this issue: https://github.com/PCMSolver/pcmsolver/issues/206"
+         << std::endl;
+-    PCMSOLVER_ERROR(errmsg.str());
++
++    std::fprintf(stderr, "%s\n", errmsg.str().c_str());
++    //PCMSOLVER_ERROR(errmsg.str());
+   }
+   // Perform symmetry blocking
+   // The total size of the cavity
+-- 
+2.40.1
