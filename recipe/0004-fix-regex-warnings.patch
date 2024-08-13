@@ -1,0 +1,79 @@
+From 278f94d3145b8369c53d9adbc6136bf399ac451f Mon Sep 17 00:00:00 2001
+From: "Lori A. Burns" <lori.burns@gmail.com>
+Date: Fri, 9 Aug 2024 01:30:05 -0400
+Subject: [PATCH 1/2] fix regex warnings
+
+---
+ cmake/lib/docopt/docopt.py | 8 ++++----
+ tools/versioner.py         | 8 ++++----
+ 2 files changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/cmake/lib/docopt/docopt.py b/cmake/lib/docopt/docopt.py
+index 2e43f7ce..ceb4e7eb 100644
+--- a/cmake/lib/docopt/docopt.py
++++ b/cmake/lib/docopt/docopt.py
+@@ -157,8 +157,8 @@ class Argument(LeafPattern):
+ 
+     @classmethod
+     def parse(class_, source):
+-        name = re.findall('(<\S*?>)', source)[0]
+-        value = re.findall('\[default: (.*)\]', source, flags=re.I)
++        name = re.findall(r'(<\S*?>)', source)[0]
++        value = re.findall(r'\[default: (.*)\]', source, flags=re.I)
+         return class_(name, value[0] if value else None)
+ 
+ 
+@@ -197,7 +197,7 @@ class Option(LeafPattern):
+             else:
+                 argcount = 1
+         if argcount:
+-            matched = re.findall('\[default: (.*)\]', description, flags=re.I)
++            matched = re.findall(r'\[default: (.*)\]', description, flags=re.I)
+             value = matched[0] if matched else None
+         return class_(short, long, argcount, value)
+ 
+@@ -454,7 +454,7 @@ def parse_defaults(doc):
+     for s in parse_section('options:', doc):
+         # FIXME corner case "bla: options: --foo"
+         _, _, s = s.partition(':')  # get rid of "options:"
+-        split = re.split('\n[ \t]*(-\S+?)', '\n' + s)[1:]
++        split = re.split(r'\n[ \t]*(-\S+?)', '\n' + s)[1:]
+         split = [s1 + s2 for s1, s2 in zip(split[::2], split[1::2])]
+         options = [Option.parse(s) for s in split if s.startswith('-')]
+         defaults += options
+diff --git a/tools/versioner.py b/tools/versioner.py
+index 03ad0b09..2db26755 100644
+--- a/tools/versioner.py
++++ b/tools/versioner.py
+@@ -45,9 +45,9 @@ def collect_version_input_from_fallback(meta_file='metadata.py'):
+     """
+     cwd = os.path.dirname(os.path.abspath(__file__))
+     metapy = open(cwd + '/' + meta_file).read()
+-    res = dict(re.findall("__version_([a-z_]+)\s*=\s*'([^']+)'", metapy))
++    res = dict(re.findall(r"__version_([a-z_]+)\s*=\s*'([^']+)'", metapy))
+     res.pop('_')
+-    is_hard_copy = re.findall("__is_hard_copy\s*=\s*(True|False)", metapy)
++    is_hard_copy = re.findall(r"__is_hard_copy\s*=\s*(True|False)", metapy)
+     res['is_hard_copy'] = to_bool(is_hard_copy[0]) if is_hard_copy else False
+     return res
+ 
+@@ -100,7 +100,7 @@ def collect_version_input_from_git():
+     (out, err) = process.communicate()
+ 
+     sane_describe = re.compile(
+-        """^v?(?P<tag>(?P<forwardseries>(?P<major>\d+)\.(?P<minor>\d+))[\.]?(?P<patch>\d+)?[-]?(?P<prere>((a)|(b)|(rc))\d+)?)[-]?(?P<commits>\d+)?[-]?(?P<gsha>\w+)?|(?P<sha>\w+)?$"""
++        r"""^v?(?P<tag>(?P<forwardseries>(?P<major>\d+)\.(?P<minor>\d+))[\.]?(?P<patch>\d+)?[-]?(?P<prere>((a)|(b)|(rc))\d+)?)[-]?(?P<commits>\d+)?[-]?(?P<gsha>\w+)?|(?P<sha>\w+)?$"""
+     )
+ 
+     mobj = sane_describe.match(out)
+@@ -142,7 +142,7 @@ def reconcile_and_compute_version_output(quiet=False):
+     # this is the tag format (PEP440 compliant) that our machinery is expecting.
+     #   let's catch any deviations with Travis before it can corrupt versioning.
+     sane_tag = re.compile(
+-        """^(?P<tag>(?P<forwardseries>(?P<major>\d+)\.(?P<minor>\d+))[\.]?(?P<patch>[0-9]+)?[-]?(?P<prere>((a)|(b)|(rc))\d+)?)$"""
++        r"""^(?P<tag>(?P<forwardseries>(?P<major>\d+)\.(?P<minor>\d+))[\.]?(?P<patch>[0-9]+)?[-]?(?P<prere>((a)|(b)|(rc))\d+)?)$"""
+     )
+ 
+     mobj = sane_tag.match(meta_latest_annotated_v_tag)
+-- 
+2.40.1

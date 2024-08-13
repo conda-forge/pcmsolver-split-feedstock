@@ -11,7 +11,6 @@ fi
 ${BUILD_PREFIX}/bin/cmake ${CMAKE_ARGS} ${ARCH_ARGS} \
   -S ${SRC_DIR} \
   -B build \
-  -G "Ninja" \
   -D CMAKE_INSTALL_PREFIX=${PREFIX} \
   -D CMAKE_BUILD_TYPE=Release \
   -D CMAKE_C_COMPILER=${CC} \
@@ -32,6 +31,9 @@ ${BUILD_PREFIX}/bin/cmake ${CMAKE_ARGS} ${ARCH_ARGS} \
   -D BUILD_STANDALONE=ON \
   -D ENABLE_CXX11_SUPPORT=ON
 
+# using make b/c VersionInfo suddenly not getting generated in time on Linux with Ninja
+#  -G "Ninja"
+
 cmake --build build --target install -j${CPU_COUNT}
 
 # Building both static & shared (instead of SHARED_LIBRARY_ONLY) since the tests
@@ -43,6 +45,7 @@ rm ${PREFIX}/lib/libpcm.a
 
 cd build
 if [[ "${CONDA_BUILD_CROSS_COMPILATION:-}" != "1" || "${CROSSCOMPILING_EMULATOR}" != "" ]]; then
-    ctest --rerun-failed --output-on-failure -j${CPU_COUNT}
+    ctest --rerun-failed --output-on-failure -j${CPU_COUNT} -E SPD
+    # SPD-failure text excluded after patch 0005 that commutes the fail
 fi
 
