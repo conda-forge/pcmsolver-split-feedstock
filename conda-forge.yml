@@ -1,3 +1,6 @@
+azure:
+  free_disk_space: true
+  store_build_artifacts: false
 build_platform:
   linux_ppc64le: linux_64
   osx_arm64: osx_64
