@@ -47,5 +47,6 @@ cd build
 if [[ "${CONDA_BUILD_CROSS_COMPILATION:-}" != "1" || "${CROSSCOMPILING_EMULATOR}" != "" ]]; then
     ctest --rerun-failed --output-on-failure -j${CPU_COUNT} -E 'SPD|green_spherical_diffuse'
     # SPD-failure text excluded after patch 0005 that commutes the fail
+    # green_spherical_diffuse excluded b/c failing on aarch64 and long duration for emulated
 fi
 
