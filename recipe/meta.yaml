@@ -1,7 +1,7 @@
 {% set name = "PCMSolver" %}
 {% set version = "1.2.3" %}
 {% set sha256 = "d1ef6bdc268a2e719b36c85125c3543df7a26e1a738daf4483f4ded0c76f5b60" %}
-{% set build = "10" %}
+{% set build = 11 %}
 
 package:
   name: {{ name|lower }}-split
@@ -10,7 +10,7 @@ package:
 source:
   url: https://github.com/{{ name }}/{{ name|lower }}/archive/v{{ version }}.tar.gz
   patches:
-    # 4,5 introduced at build=10
+    # 0004 and 0005 introduced at build=10
     - 0001-update-cmake-adapt-for-win-add-licenses.patch
     - 0002-final-touches.patch
     - 0003-likely-catch-fix-for-osx_arm64.patch
