@@ -1,0 +1,30 @@
+From ca3d96edaf92883952a1246016f63a213d682482 Mon Sep 17 00:00:00 2001
+From: "Lori A. Burns" <lori.burns@gmail.com>
+Date: Sat, 17 Aug 2024 13:26:40 -0400
+Subject: [PATCH 1/1] cpp std 11 into 14
+
+---
+ cmake/custom/compilers/CXXFlags.cmake | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/cmake/custom/compilers/CXXFlags.cmake b/cmake/custom/compilers/CXXFlags.cmake
+index b6f6fd8c..b43849c4 100644
+--- a/cmake/custom/compilers/CXXFlags.cmake
++++ b/cmake/custom/compilers/CXXFlags.cmake
+@@ -7,12 +7,12 @@ if(ENABLE_CXX11_SUPPORT)
+     RESULT cxx11_flag
+     LANGUAGE CXX
+     REQUIRED
+-    FLAGS "-std=c++11;/std:c++11;-std=c++0x;--c++11;--c++0x"
++    FLAGS "-std=c++14;/std:c++14;--c++14"
+     )
+   if(cxx11_flag)
+     set(CXX_STANDARD_FLAG ${cxx11_flag})
+     set(HAS_CXX11 TRUE)
+-    message(STATUS "Using C++11 standard")
++    message(STATUS "Using C++14 standard")
+   else()
+     set(CXX_STANDARD_FLAG "-std=gnu++98")
+     set(HAS_CXX11 FALSE)
+-- 
+2.40.1
