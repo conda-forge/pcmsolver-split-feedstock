@@ -16,6 +16,7 @@ source:
     - 0003-likely-catch-fix-for-osx_arm64.patch
     - 0004-fix-regex-warnings.patch
     - 0005-posdef-error-into-warning.patch
+    - 0006-cpp-std-11-into-14.patch
   sha256: {{ sha256 }}
 
 build:
