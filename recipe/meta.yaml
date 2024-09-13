@@ -1,7 +1,7 @@
 {% set name = "PCMSolver" %}
 {% set version = "1.2.3" %}
 {% set sha256 = "d1ef6bdc268a2e719b36c85125c3543df7a26e1a738daf4483f4ded0c76f5b60" %}
-{% set build = 13 %}
+{% set build = 14 %}
 
 package:
   name: {{ name|lower }}-split
@@ -17,6 +17,7 @@ source:
     - 0004-fix-regex-warnings.patch
     - 0005-posdef-error-into-warning.patch
     - 0006-cpp-std-11-into-14.patch
+    - 0007-gauss-error-into-warning.patch
   sha256: {{ sha256 }}
 
 build:
