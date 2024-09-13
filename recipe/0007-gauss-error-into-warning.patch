@@ -1,0 +1,45 @@
+From 0d95a2faeb041d2c8019f692ff865779357be599 Mon Sep 17 00:00:00 2001
+From: "Lori A. Burns" <lori.burns@gmail.com>
+Date: Fri, 13 Sep 2024 17:35:42 -0400
+Subject: [PATCH] gauss error into warning
+
+---
+ src/bi_operators/IBoundaryIntegralOperator.cpp | 1 +
+ src/interface/Meddle.cpp                       | 8 ++++++--
+ 2 files changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/src/bi_operators/IBoundaryIntegralOperator.cpp b/src/bi_operators/IBoundaryIntegralOperator.cpp
+index c1d672cc..bfa676f9 100644
+--- a/src/bi_operators/IBoundaryIntegralOperator.cpp
++++ b/src/bi_operators/IBoundaryIntegralOperator.cpp
+@@ -51,6 +51,7 @@ Eigen::MatrixXd IBoundaryIntegralOperator::computeS(
+         << "Please report this issue: https://github.com/PCMSolver/pcmsolver/issues/206"
+         << std::endl;
+ 
++    std::fprintf(stdout, "%s\n", errmsg.str().c_str());
+     std::fprintf(stderr, "%s\n", errmsg.str().c_str());
+     //PCMSOLVER_ERROR(errmsg.str());
+   }
+diff --git a/src/interface/Meddle.cpp b/src/interface/Meddle.cpp
+index 56d0a1ca..4f9a131c 100644
+--- a/src/interface/Meddle.cpp
++++ b/src/interface/Meddle.cpp
+@@ -564,10 +564,14 @@ void Meddle::GaussCheck() const {
+            << ")." << std::endl;
+     errmsg << "Consider changing the average area of the cavity finite elements."
+            << std::endl;
++    errmsg << "Normally an error, this has been commuted to a warning via patch."
++           << std::endl;
+     errmsg
+-        << "Please report this issue: https://github.com/PCMSolver/pcmsolver/issues"
++        << "Please report this issue: https://github.com/PCMSolver/pcmsolver/issues/206"
+         << std::endl;
+-    PCMSOLVER_ERROR(errmsg.str());
++    std::fprintf(stdout, "%s\n", errmsg.str().c_str());
++    std::fprintf(stderr, "%s\n", errmsg.str().c_str());
++    //PCMSOLVER_ERROR(errmsg.str());
+   }
+ }
+ 
+-- 
+2.44.0

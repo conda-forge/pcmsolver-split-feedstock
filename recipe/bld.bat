@@ -47,7 +47,7 @@ del %LIBRARY_PREFIX%\\share\\cmake\\PCMSolver\\PCMSolverTargets-static.cmake
 del %LIBRARY_PREFIX%\\lib\\libpcm.a
 
 cd build
-ctest --rerun-failed --output-on-failure -E SPD
+ctest --rerun-failed --output-on-failure -E "SPD|gauss-failure"
 :: SPD-failure test excluded after patch 0005 that commutes the fail
 if errorlevel 1 exit 1
 
