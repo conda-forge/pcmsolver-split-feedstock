@@ -1,7 +1,7 @@
 {% set name = "PCMSolver" %}
 {% set version = "1.2.3" %}
 {% set sha256 = "d1ef6bdc268a2e719b36c85125c3543df7a26e1a738daf4483f4ded0c76f5b60" %}
-{% set build = 14 %}
+{% set build = 15 %}
 
 package:
   name: {{ name|lower }}-split
@@ -29,13 +29,10 @@ requirements:
   build:
     - python                              # [build_platform != target_platform]
     - cross-python_{{ target_platform }}  # [build_platform != target_platform]
-    - {{ compiler('c') }}                 # [unix]
-    - {{ stdlib("c") }}                   # [unix]
-    - {{ compiler('cxx') }}               # [unix]
-    - {{ compiler('fortran') }}           # [unix]
-    - {{ compiler('m2w64_c') }}           # [win]
-    - {{ stdlib("c") }}                   # [win]
-    - {{ compiler('m2w64_fortran') }}     # [win]
+    - {{ stdlib("c") }}
+    - {{ compiler("c") }}
+    - {{ compiler("cxx") }}
+    - {{ compiler("fortran") }}
     - cmake
     - make                                # [unix]
     - ninja                               # [win]
@@ -45,7 +42,6 @@ requirements:
     - python
     - zlib
   run:
-    - m2w64-gcc-libgfortran               # [win]
     - python
 
 outputs:
@@ -111,19 +107,15 @@ outputs:
         - {{ pin_subpackage('libpcm', max_pin='x.x.x') }}
     requirements:
       build:
-        - {{ compiler('c') }}              # [unix]
-        - {{ stdlib("c") }}                # [unix]
-        - {{ compiler('cxx') }}            # [unix]
-        - {{ compiler('fortran') }}        # [unix]
-        - {{ compiler('m2w64_c') }}        # [win]
-        - {{ stdlib("c") }}                # [win]
-        - {{ compiler('m2w64_fortran') }}  # [win]
+        - {{ stdlib("c") }}
+        - {{ compiler("c") }}
+        - {{ compiler("cxx") }}
+        - {{ compiler("fortran") }}
       host:
         - libboost-headers
         - eigen
         - zlib
       run:
-        - m2w64-gcc-libgfortran            # [win]
     files:
       - bin/run_pcm                        # [unix]
       - lib/libpcm*                        # [unix]
