@@ -29,8 +29,7 @@ requirements:
     - {{ stdlib("c") }}                   # [win]
     - {{ compiler('m2w64_fortran') }}     # [win]
     - cmake
-    - make                                # [unix]
-    - ninja                               # [win]
+    - make
     - sed                                 # [unix]
     - m2-sed                              # [win]
   host:
@@ -112,7 +111,6 @@ outputs:
         - {{ stdlib("c") }}                # [win]
         - {{ compiler('m2w64_fortran') }}  # [win]
       host:
-        - catch2
         - libboost-headers
         - eigen
         - zlib
