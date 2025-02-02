@@ -9,6 +9,7 @@ source:
   url: https://github.com/PCMSolver/pcmsolver/archive/v{{ version }}.tar.gz
   sha256: 85d40881e3dbdb13e9b8dc661cd576c181760f6e0d760ab5630b5a8155418f34
   patches:
+    - 0001-add-missing-include.patch
     - 0003-likely-catch-fix-for-osx_arm64.patch
 
 build:
