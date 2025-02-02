@@ -30,7 +30,8 @@ requirements:
     - cmake
     - make                                # [unix]
     - ninja                               # [win]
-    - sed
+    - sed                                 # [unix]
+    - m2-sed                              # [win]
   host:
     - libboost-devel
     - eigen

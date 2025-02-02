@@ -1,29 +1,19 @@
 @ECHO ON
 
-set "CC=gcc.exe"
-set "CXX=g++.exe"
-set "FC=gfortran.exe"
+:: Use C++ 14 instead of C++11
+sed -i 's/CMAKE_CXX_STANDARD 11/CMAKE_CXX_STANDARD 14/' cmake\custom\compilers\CXXFlags.cmake
 
 cmake %CMAKE_ARGS% ^
   -G "MinGW Makefiles" ^
   -S %SRC_DIR% ^
   -B build ^
-  -D CMAKE_INSTALL_PREFIX="%LIBRARY_PREFIX%" ^
   -D CMAKE_BUILD_TYPE=Release ^
-  -D CMAKE_C_FLAGS="%CFLAGS%" ^
-  -D CMAKE_CXX_FLAGS="%CXXFLAGS%" ^
-  -D CMAKE_Fortran_FLAGS="%FFLAGS%" ^
-  -D CMAKE_INSTALL_LIBDIR="lib" ^
-  -D CMAKE_INSTALL_INCLUDEDIR="include" ^
-  -D CMAKE_INSTALL_BINDIR="bin" ^
-  -D CMAKE_INSTALL_DATADIR="share" ^
   -D PYMOD_INSTALL_LIBDIR="/../../Lib/site-packages" ^
   -D Python_EXECUTABLE="%PYTHON%" ^
   -D EIGEN3_ROOT="%LIBRARY_PREFIX%" ^
   -D CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON ^
   -D CMAKE_GNUtoMS=ON ^
   -D BUILD_TESTING=OFF ^
-  -D CMAKE_PREFIX_PATH="%LIBRARY_PREFIX%" ^
   -D ENABLE_OPENMP=OFF ^
   -D ENABLE_GENERIC=OFF ^
   -D ENABLE_TESTS=ON ^
@@ -50,4 +40,3 @@ cd build
 ctest --rerun-failed --output-on-failure -E "SPD|gauss-failure"
 :: SPD-failure test excluded after patch 0005 that commutes the fail
 if errorlevel 1 exit 1
-
