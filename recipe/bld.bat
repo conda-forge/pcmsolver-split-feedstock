@@ -7,6 +7,9 @@ cmake %CMAKE_ARGS% ^
   -G "MinGW Makefiles" ^
   -S %SRC_DIR% ^
   -B build ^
+  -D CMAKE_C_COMPILER=%CC% ^
+  -D CMAKE_CXX_COMPILER=%CXX% ^
+  -D CMAKE_Fortran_COMPILER=%FC% ^
   -D CMAKE_BUILD_TYPE=Release ^
   -D PYMOD_INSTALL_LIBDIR="/../../Lib/site-packages" ^
   -D Python_EXECUTABLE="%PYTHON%" ^
