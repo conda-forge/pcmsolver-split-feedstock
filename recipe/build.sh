@@ -1,25 +1,15 @@
 #!/usr/bin/env bash
 
-set -ex
+set -o xtrace -o nounset -o pipefail -o errexit
 
-ARCH_ARGS=""
-if [ "$(uname)" == "Darwin" ]; then
-    #CXXFLAGS="-D_LIBCPP_ENABLE_CXX17_REMOVED_UNARY_BINARY_FUNCTION=1 ${CXXFLAGS}"
-    CXXFLAGS="${CXXFLAGS} -std=c++14"
-fi
+# Use C++ 14 instead of C++11
+sed -i 's/CMAKE_CXX_STANDARD 11/CMAKE_CXX_STANDARD 14/' cmake/custom/compilers/CXXFlags.cmake
 
-${BUILD_PREFIX}/bin/cmake ${CMAKE_ARGS} ${ARCH_ARGS} \
+cmake ${CMAKE_ARGS} \
   -S ${SRC_DIR} \
   -B build \
-  -D CMAKE_INSTALL_PREFIX=${PREFIX} \
+  -D CMAKE_VERBOSE_MAKEFILE=ON \
   -D CMAKE_BUILD_TYPE=Release \
-  -D CMAKE_C_COMPILER=${CC} \
-  -D CMAKE_C_FLAGS="${CFLAGS}" \
-  -D CMAKE_CXX_COMPILER=${CXX} \
-  -D CMAKE_CXX_FLAGS="${CXXFLAGS}" \
-  -D CMAKE_Fortran_COMPILER=${FC} \
-  -D CMAKE_Fortran_FLAGS="${FFLAGS}" \
-  -D CMAKE_INSTALL_LIBDIR=lib \
   -D PYMOD_INSTALL_LIBDIR="/python${PY_VER}/site-packages" \
   -D Python_EXECUTABLE=${PYTHON} \
   -D EIGEN3_ROOT=${PREFIX} \
@@ -33,7 +23,6 @@ ${BUILD_PREFIX}/bin/cmake ${CMAKE_ARGS} ${ARCH_ARGS} \
 
 # using make b/c VersionInfo suddenly not getting generated in time on Linux with Ninja
 #  -G "Ninja"
-
 cmake --build build --target install -j${CPU_COUNT}
 
 # Building both static & shared (instead of SHARED_LIBRARY_ONLY) since the tests
