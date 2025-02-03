@@ -27,7 +27,7 @@ requirements:
     - {{ compiler('fortran') }}           # [unix]
     - {{ compiler('m2w64_c') }}           # [win]
     - {{ stdlib("m2w64_c") }}             # [win]
-    - {{ compiler('m2w64_c') }}           # [win]
+    - {{ compiler('m2w64_cxx') }}           # [win]
     - {{ compiler('m2w64_fortran') }}     # [win]
     - cmake
     - make
@@ -110,7 +110,7 @@ outputs:
         - {{ compiler('fortran') }}        # [unix]
         - {{ compiler('m2w64_c') }}        # [win]
         - {{ stdlib("m2w64_c") }}          # [win]
-        - {{ compiler('m2w64_c') }}        # [win]
+        - {{ compiler('m2w64_cxx') }}        # [win]
         - {{ compiler('m2w64_fortran') }}  # [win]
         - cmake
         - make
