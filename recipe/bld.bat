@@ -11,7 +11,7 @@ cmake %CMAKE_ARGS% ^
   -D CMAKE_CXX_COMPILER=%CXX% ^
   -D CMAKE_Fortran_COMPILER=%FC% ^
   -D CMAKE_BUILD_TYPE=Release ^
-  -D PYMOD_INSTALL_LIBDIR="/../../Lib/site-packages" ^
+  -D PYMOD_INSTALL_LIBDIR="/Library/lib/python3.12/site-packages" ^
   -D Python_EXECUTABLE="%PYTHON%" ^
   -D EIGEN3_ROOT="%LIBRARY_PREFIX%" ^
   -D CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON ^
