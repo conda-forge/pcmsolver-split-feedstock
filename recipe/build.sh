@@ -41,7 +41,8 @@ cmake --build build --target install -j${CPU_COUNT}
 #   removing all the static lib stuff immediately after install.
 rm ${PREFIX}/share/cmake/PCMSolver/PCMSolverTargets-static-release.cmake
 rm ${PREFIX}/share/cmake/PCMSolver/PCMSolverTargets-static.cmake
-rm ${PREFIX}/lib/libpcm.a
+# rm ${PREFIX}/lib/libpcm.a  # below after 0008 patch
+rm ${PREFIX}/lib/libpcmstat.a
 
 cd build
 if [[ "${CONDA_BUILD_CROSS_COMPILATION:-}" != "1" || "${CROSSCOMPILING_EMULATOR}" != "" ]]; then

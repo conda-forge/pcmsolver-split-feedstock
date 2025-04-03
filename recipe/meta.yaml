@@ -19,6 +19,7 @@ source:
     - 0006-cpp-std-11-into-14.patch
     - 0007-gauss-error-into-warning.patch
     - 0008-avoid-multiple-rules-generate-ninja.patch
+    - 0009-avoid-headers-in-windows.patch
   sha256: {{ sha256 }}
 
 build:
@@ -129,11 +130,11 @@ outputs:
       commands:
         # Verify library
         - test -L $PREFIX/lib/libpcm$SHLIB_EXT                         # [unix]
-        - test ! -f $PREFIX/lib/libpcm.a                               # [unix]
+        - test ! -f $PREFIX/lib/libpcmstat.a                           # [unix]
         - if not exist %PREFIX%\\Library\\lib\\libpcm.dll.a exit 1     # [win]   # gnu import lib
         - if not exist %PREFIX%\\Library\\lib\\libpcm.lib exit 1       # [win]   # ms import lib
         - if not exist %PREFIX%\\Library\\bin\\libpcm.dll exit 1       # [win]   # gnu/ms dyn lib
-        - if exist %PREFIX%\\Library\\lib\\libpcm.a exit 1             # [win]   # gnu static lib removed
+        - if exist %PREFIX%\\Library\\lib\\libstatpcm.a exit 1         # [win]   # gnu static lib removed
         # Verify executable
         - test -f $PREFIX/bin/run_pcm                                  # [unix]
         - if not exist %PREFIX%\\Library\\bin\\run_pcm.exe exit 1      # [win]
