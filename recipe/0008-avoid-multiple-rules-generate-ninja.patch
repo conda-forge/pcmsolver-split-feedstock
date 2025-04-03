@@ -1,0 +1,25 @@
+From a34827249a30ed8742a457cc659d1540a3c79751 Mon Sep 17 00:00:00 2001
+From: "Lori A. Burns" <lori.burns@gmail.com>
+Date: Thu, 3 Apr 2025 17:07:20 -0400
+Subject: [PATCH] avoid multiple rules generate ninja
+
+---
+ src/CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index 9afff3a..f91aaca 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -116,7 +116,7 @@ if(NOT SHARED_LIBRARY_ONLY)
+     )
+   set_target_properties(pcm-static
+     PROPERTIES
+-       OUTPUT_NAME "pcm"
++       OUTPUT_NAME "pcmstat"
+        EXPORT_NAME "pcm"
+       PCMSolver_PYMOD "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}${PYMOD_INSTALL_LIBDIR}"
+     )
+-- 
+1.8.3.1
+
