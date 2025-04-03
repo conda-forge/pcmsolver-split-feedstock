@@ -1,21 +1,24 @@
-From f2e28facd1940940b42597ea2654d21b0a09dd1a Mon Sep 17 00:00:00 2001
+From c59f1d39650bd6bca135bfcb9f55ed1fab06dd67 Mon Sep 17 00:00:00 2001
 From: "Lori A. Burns" <lori.burns@gmail.com>
-Date: Thu, 3 Apr 2025 17:40:15 -0400
+Date: Thu, 3 Apr 2025 18:06:00 -0400
 Subject: [PATCH] avoid headers in windows
 
 ---
- src/cavity/GePolCavity.cpp | 2 ++
- 1 file changed, 2 insertions(+)
+ src/cavity/GePolCavity.cpp | 5 +++++
+ 1 file changed, 5 insertions(+)
 
 diff --git a/src/cavity/GePolCavity.cpp b/src/cavity/GePolCavity.cpp
-index 857cc40b..3f19396e 100644
+index 857cc40b..aba1ecbb 100644
 --- a/src/cavity/GePolCavity.cpp
 +++ b/src/cavity/GePolCavity.cpp
-@@ -33,7 +33,9 @@
+@@ -33,7 +33,12 @@
  #include <vector>
  
  #include <sys/types.h>
-+#ifndef _MSC_VER
++#ifdef _MSC_VER
++#include <process.h>
++#define getpid _getpid
++#else
  #include <unistd.h>
 +#endif
  

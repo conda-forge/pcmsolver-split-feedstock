@@ -50,7 +50,7 @@ if [[ "$target_platform" == "linux-aarch64" || "$target_platform" == "linux-ppc6
     ctest --rerun-failed --output-on-failure -j${CPU_COUNT} -E 'SPD|gauss-failure|green_spherical_diffuse'
     # green_spherical_diffuse excluded b/c failing on aarch64 and long duration for emulated
 else
-    ctest --rerun-failed --output-on-failure -j${CPU_COUNT} -E 'SPD|gauss-failure'
+    ctest --output-on-failure
     # SPD-failure test excluded after patch 0005 that commutes the fail
     # gauss-failure test exluded after patch 0007 that commutes the fail
 fi
