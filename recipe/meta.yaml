@@ -37,7 +37,6 @@ requirements:
     - {{ compiler("fortran") }}
     - cmake
     - make                                # [unix]
-    - ninja                               # [win]
   host:
     - libboost-devel
     - eigen
