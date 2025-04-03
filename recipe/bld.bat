@@ -1,11 +1,8 @@
 @ECHO ON
 
-set "CC=gcc.exe"
-set "CXX=g++.exe"
-set "FC=gfortran.exe"
 
 cmake %CMAKE_ARGS% ^
-  -G "MinGW Makefiles" ^
+  -G "Ninja" ^
   -S %SRC_DIR% ^
   -B build ^
   -D CMAKE_INSTALL_PREFIX="%LIBRARY_PREFIX%" ^
