@@ -37,6 +37,8 @@ requirements:
     - {{ compiler("fortran") }}
     - cmake
     - make                                # [unix]
+    - ninja                               # [win]
+    - libxml2  # TEMP
   host:
     - libboost-devel
     - eigen
