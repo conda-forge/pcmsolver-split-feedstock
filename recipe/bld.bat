@@ -9,7 +9,7 @@ cmake %CMAKE_ARGS% ^
   -D CMAKE_BUILD_TYPE=Release ^
   -D CMAKE_C_FLAGS="%CFLAGS%" ^
   -D CMAKE_CXX_FLAGS="/EHsc %CXXFLAGS%" ^
-  -D CMAKE_Fortran_FLAGS="%FFLAGS%" ^
+  -D CMAKE_Fortran_FLAGS="%FFLAGS% -std=legacy" ^
   -D CMAKE_INSTALL_LIBDIR="lib" ^
   -D CMAKE_INSTALL_INCLUDEDIR="include" ^
   -D CMAKE_INSTALL_BINDIR="bin" ^
