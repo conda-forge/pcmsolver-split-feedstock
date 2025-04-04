@@ -2,14 +2,12 @@
 
 
 cmake %CMAKE_ARGS% ^
-  -G "NMake Makefiles" ^
+  -G "Ninja" ^
   -S %SRC_DIR% ^
   -B build ^
   -D CMAKE_INSTALL_PREFIX="%LIBRARY_PREFIX%" ^
   -D CMAKE_BUILD_TYPE=Release ^
-  -D CMAKE_C_COMPILER="clang-cl" ^
   -D CMAKE_C_FLAGS="%CFLAGS%" ^
-  -D CMAKE_CXX_COMPILER="clang-cl" ^
   -D CMAKE_CXX_FLAGS="/EHsc %CXXFLAGS%" ^
   -D CMAKE_Fortran_FLAGS="%FFLAGS%" ^
   -D CMAKE_INSTALL_LIBDIR="lib" ^
@@ -20,7 +18,6 @@ cmake %CMAKE_ARGS% ^
   -D Python_EXECUTABLE="%PYTHON%" ^
   -D EIGEN3_ROOT="%LIBRARY_PREFIX%" ^
   -D CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON ^
-  -D CMAKE_GNUtoMS=ON ^
   -D BUILD_TESTING=OFF ^
   -D CMAKE_PREFIX_PATH="%LIBRARY_PREFIX%" ^
   -D ENABLE_OPENMP=OFF ^
