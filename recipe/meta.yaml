@@ -39,7 +39,6 @@ requirements:
     - cmake
     - make                                # [unix]
     - ninja
-    - libxml2  # TEMP
   host:
     - libboost-devel
     - eigen
