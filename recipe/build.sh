@@ -33,8 +33,7 @@ ${BUILD_PREFIX}/bin/cmake ${CMAKE_ARGS} ${ARCH_ARGS} \
   -D ENABLE_CXX11_SUPPORT=ON
 
 # using make b/c VersionInfo suddenly not getting generated in time on Linux with Ninja
-#  -G "Ninja"
-
+#   so pre-building as need to use Ninja for Windows (NMake has another error)
 cmake --build build --target update_version
 cmake --build build --target install -j${CPU_COUNT}
 

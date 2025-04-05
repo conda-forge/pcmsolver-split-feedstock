@@ -20,6 +20,7 @@ source:
     - 0007-gauss-error-into-warning.patch
     - 0008-avoid-multiple-rules-generate-ninja.patch
     - 0009-avoid-headers-in-windows.patch
+    - 0010-skip-libm-linking.patch
   sha256: {{ sha256 }}
 
 build:
@@ -37,7 +38,7 @@ requirements:
     - {{ compiler("fortran") }}
     - cmake
     - make                                # [unix]
-    - ninja                               # [win]
+    - ninja
     - libxml2  # TEMP
   host:
     - libboost-devel

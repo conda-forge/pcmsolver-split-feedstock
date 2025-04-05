@@ -1,0 +1,36 @@
+From 960c9da2f03b8581bbe0cbc03d63b8145ef4eb4a Mon Sep 17 00:00:00 2001
+From: "Lori A. Burns" <lori.burns@gmail.com>
+Date: Sat, 5 Apr 2025 02:42:05 -0400
+Subject: [PATCH] skip libm linking
+
+---
+ tests/C_host/CMakeLists.txt | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/tests/C_host/CMakeLists.txt b/tests/C_host/CMakeLists.txt
+index d51758e..560832c 100644
+--- a/tests/C_host/CMakeLists.txt
++++ b/tests/C_host/CMakeLists.txt
+@@ -4,7 +4,9 @@ target_include_directories(C_host
+     ${PROJECT_SOURCE_DIR}/tests/C_host
+   )
+ target_link_libraries(C_host PCMSolver)
++if (NOT WIN32)
+ target_link_libraries(C_host m)
++endif()
+ set_target_properties(C_host
+   PROPERTIES
+     LINKER_LANGUAGE C
+@@ -28,7 +30,9 @@ target_include_directories(fail-C_host
+     ${PROJECT_SOURCE_DIR}/tests/C_host
+   )
+ target_link_libraries(fail-C_host PCMSolver)
++if (NOT WIN32)
+ target_link_libraries(fail-C_host m)
++endif()
+ set_target_properties(fail-C_host
+   PROPERTIES
+     LINKER_LANGUAGE C
+-- 
+1.8.3.1
+
