@@ -1,14 +1,29 @@
-From 960c9da2f03b8581bbe0cbc03d63b8145ef4eb4a Mon Sep 17 00:00:00 2001
+From 91637767ccabaa3091479f38b2811b07348bf41b Mon Sep 17 00:00:00 2001
 From: "Lori A. Burns" <lori.burns@gmail.com>
-Date: Sat, 5 Apr 2025 02:42:05 -0400
+Date: Sat, 5 Apr 2025 12:51:29 -0400
 Subject: [PATCH] skip libm linking
 
 ---
+ CMakeLists.txt              | 3 +++
  tests/C_host/CMakeLists.txt | 4 ++++
- 1 file changed, 4 insertions(+)
+ 2 files changed, 7 insertions(+)
 
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 4df71327..57dadb85 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -4,6 +4,9 @@
+ # set minimum cmake version
+ cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
+ cmake_policy(SET CMP0053 NEW)
++if(POLICY CMP0177)
++    cmake_policy(SET CMP0177 NEW)
++endif()
+ 
+ # project name
+ project(PCMSolver LANGUAGES CXX C Fortran)
 diff --git a/tests/C_host/CMakeLists.txt b/tests/C_host/CMakeLists.txt
-index d51758e..560832c 100644
+index d51758e6..560832c7 100644
 --- a/tests/C_host/CMakeLists.txt
 +++ b/tests/C_host/CMakeLists.txt
 @@ -4,7 +4,9 @@ target_include_directories(C_host
@@ -32,5 +47,5 @@ index d51758e..560832c 100644
    PROPERTIES
      LINKER_LANGUAGE C
 -- 
-1.8.3.1
+2.40.1
 
