@@ -9,6 +9,7 @@ if [ "$(uname)" == "Darwin" ]; then
 fi
 
 ${BUILD_PREFIX}/bin/cmake ${CMAKE_ARGS} ${ARCH_ARGS} \
+  -G "Ninja" \
   -S ${SRC_DIR} \
   -B build \
   -D CMAKE_INSTALL_PREFIX=${PREFIX} \
@@ -34,6 +35,7 @@ ${BUILD_PREFIX}/bin/cmake ${CMAKE_ARGS} ${ARCH_ARGS} \
 # using make b/c VersionInfo suddenly not getting generated in time on Linux with Ninja
 #  -G "Ninja"
 
+cmake --build build --target update_version
 cmake --build build --target install -j${CPU_COUNT}
 
 # Building both static & shared (instead of SHARED_LIBRARY_ONLY) since the tests
