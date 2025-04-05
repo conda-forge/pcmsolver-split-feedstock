@@ -1,5 +1,13 @@
 @ECHO ON
+SetLocal EnableDelayedExpansion
 
+:: flang still uses a temporary name not recognized by CMake
+copy %BUILD_PREFIX%\Library\bin\flang-new.exe %BUILD_PREFIX%\Library\bin\flang.exe
+
+:: millions of lines of warnings with clang-19
+set "CFLAGS=%CFLAGS% -w"
+
+:: -std=legacy" yields "error: Only -std=f2018 is allowed currently"
 
 cmake %CMAKE_ARGS% ^
   -G "Ninja" ^
@@ -7,9 +15,12 @@ cmake %CMAKE_ARGS% ^
   -B build ^
   -D CMAKE_INSTALL_PREFIX="%LIBRARY_PREFIX%" ^
   -D CMAKE_BUILD_TYPE=Release ^
+  -D CMAKE_C_COMPILER=clang-cl ^
   -D CMAKE_C_FLAGS="%CFLAGS%" ^
+  -D CMAKE_CXX_COMPILER=clang-cl ^
   -D CMAKE_CXX_FLAGS="/EHsc %CXXFLAGS%" ^
-  -D CMAKE_Fortran_FLAGS="%FFLAGS% -std=legacy" ^
+  -D CMAKE_Fortran_COMPILER=flang ^
+  -D CMAKE_Fortran_FLAGS="%FFLAGS%" ^
   -D CMAKE_INSTALL_LIBDIR="lib" ^
   -D CMAKE_INSTALL_INCLUDEDIR="include" ^
   -D CMAKE_INSTALL_BINDIR="bin" ^
