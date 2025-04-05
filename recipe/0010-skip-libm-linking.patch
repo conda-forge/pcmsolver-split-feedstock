@@ -1,13 +1,13 @@
-From 2d992203f146b2333daa19e8823860cdc626856a Mon Sep 17 00:00:00 2001
+From 511e1df1a0ef1d4666a87110f9f0b0b2512f1486 Mon Sep 17 00:00:00 2001
 From: "Lori A. Burns" <lori.burns@gmail.com>
-Date: Sat, 5 Apr 2025 14:44:19 -0400
+Date: Sat, 5 Apr 2025 15:14:51 -0400
 Subject: [PATCH] skip libm linking
 
 ---
  CMakeLists.txt               | 3 +++
- cmake/custom/pcmsolver.cmake | 4 +++-
+ cmake/custom/pcmsolver.cmake | 5 +++++
  tests/C_host/CMakeLists.txt  | 4 ++++
- 3 files changed, 10 insertions(+), 1 deletion(-)
+ 3 files changed, 12 insertions(+)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
 index 4df71327..57dadb85 100644
@@ -24,20 +24,21 @@ index 4df71327..57dadb85 100644
  # project name
  project(PCMSolver LANGUAGES CXX C Fortran)
 diff --git a/cmake/custom/pcmsolver.cmake b/cmake/custom/pcmsolver.cmake
-index da5f4906..c4c7678b 100644
+index da5f4906..eeaa98a0 100644
 --- a/cmake/custom/pcmsolver.cmake
 +++ b/cmake/custom/pcmsolver.cmake
-@@ -27,7 +27,9 @@ if(NOT DEFINED PYMOD_INSTALL_LIBDIR)
-   set(PYMOD_INSTALL_LIBDIR "/python" CACHE STRING "Location within CMAKE_INSTALL_LIBDIR to which Python modules are installed" FORCE)
- else()
-   message(STATUS "Setting option PYMOD_INSTALL_LIBDIR (should start with /): ${PYMOD_INSTALL_LIBDIR}")
--  set(PYMOD_INSTALL_LIBDIR "${PYMOD_INSTALL_LIBDIR}" CACHE STRING "Location within CMAKE_INSTALL_LIBDIR to which Python modules are installed" FORCE)
-+  file(TO_CMAKE_PATH "${PYMOD_INSTALL_LIBDIR}" pymod_tmp)
-+  message(STATUS "Setting option PYMOD_INSTALL_LIBDIR (processed):           ${pymod_tmp}")
-+  set(PYMOD_INSTALL_LIBDIR "${pymod_tmp}" CACHE STRING "Location within CMAKE_INSTALL_LIBDIR to which Python modules are installed" FORCE)
+@@ -30,6 +30,11 @@ else()
+   set(PYMOD_INSTALL_LIBDIR "${PYMOD_INSTALL_LIBDIR}" CACHE STRING "Location within CMAKE_INSTALL_LIBDIR to which Python modules are installed" FORCE)
  endif()
  file(TO_NATIVE_PATH "${CMAKE_INSTALL_LIBDIR}${PYMOD_INSTALL_LIBDIR}/pcmsolver" PYMOD_INSTALL_FULLDIR)
++message("NATIVE ${PYMOD_INSTALL_FULLDIR}")
++file(TO_CMAKE_PATH "${CMAKE_INSTALL_LIBDIR}${PYMOD_INSTALL_LIBDIR}/pcmsolver" PYMOD_INSTALL_FULLDIR)
++message("CMAKE  ${PYMOD_INSTALL_FULLDIR}")
++set(PYMOD_INSTALL_FULLDIR "${CMAKE_INSTALL_LIBDIR}${PYMOD_INSTALL_LIBDIR}/pcmsolver")
++message("SET    ${PYMOD_INSTALL_FULLDIR}")
  
+ add_custom_target(update_version
+   ALL
 diff --git a/tests/C_host/CMakeLists.txt b/tests/C_host/CMakeLists.txt
 index d51758e6..560832c7 100644
 --- a/tests/C_host/CMakeLists.txt
