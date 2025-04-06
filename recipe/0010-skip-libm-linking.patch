@@ -1,13 +1,15 @@
-From 511e1df1a0ef1d4666a87110f9f0b0b2512f1486 Mon Sep 17 00:00:00 2001
+From 72fc15116e4d7cdc384175bf0bd70d0cac3da49e Mon Sep 17 00:00:00 2001
 From: "Lori A. Burns" <lori.burns@gmail.com>
-Date: Sat, 5 Apr 2025 15:14:51 -0400
-Subject: [PATCH] skip libm linking
+Date: Sun, 6 Apr 2025 02:40:18 -0400
+Subject: [PATCH] asdf
 
 ---
- CMakeLists.txt               | 3 +++
- cmake/custom/pcmsolver.cmake | 5 +++++
- tests/C_host/CMakeLists.txt  | 4 ++++
- 3 files changed, 12 insertions(+)
+ CMakeLists.txt                     | 3 +++
+ api/pcmsolver.f90                  | 2 +-
+ cmake/autocmake/external/docopt.py | 6 +++---
+ cmake/custom/pcmsolver.cmake       | 5 +++++
+ tests/C_host/CMakeLists.txt        | 4 ++++
+ 5 files changed, 16 insertions(+), 4 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
 index 4df71327..57dadb85 100644
@@ -23,6 +25,43 @@ index 4df71327..57dadb85 100644
  
  # project name
  project(PCMSolver LANGUAGES CXX C Fortran)
+diff --git a/api/pcmsolver.f90 b/api/pcmsolver.f90
+index 29581f78..4b816653 100644
+--- a/api/pcmsolver.f90
++++ b/api/pcmsolver.f90
+@@ -254,7 +254,7 @@ contains
+   ! \return array_c Null-terminated C string in a character array.
+   pure function pcmsolver_fstring_to_carray(string_f03) result(array_c)
+     character(len=*), intent(in) :: string_f03
+-    character(kind=c_char, len=1) :: array_c(len(string_f03)+1)
++    character(kind=c_char, len=1) :: array_c(len(string_f03))
+ 
+     integer :: i
+ 
+diff --git a/cmake/autocmake/external/docopt.py b/cmake/autocmake/external/docopt.py
+index 7b927e2f..482b4ab5 100644
+--- a/cmake/autocmake/external/docopt.py
++++ b/cmake/autocmake/external/docopt.py
+@@ -162,8 +162,8 @@ class Argument(ChildPattern):
+ 
+     @classmethod
+     def parse(class_, source):
+-        name = re.findall('(<\S*?>)', source)[0]
+-        value = re.findall('\[default: (.*)\]', source, flags=re.I)
++        name = re.findall(r'(<\S*?>)', source)[0]
++        value = re.findall(r'\[default: (.*)\]', source, flags=re.I)
+         return class_(name, value[0] if value else None)
+ 
+ 
+@@ -204,7 +204,7 @@ class Option(ChildPattern):
+             else:
+                 argcount = 1
+         if argcount:
+-            matched = re.findall('\[default: (.*)\]', description, flags=re.I)
++            matched = re.findall(r'\[default: (.*)\]', description, flags=re.I)
+             value = matched[0] if matched else None
+         return class_(short, long, argcount, value)
+ 
 diff --git a/cmake/custom/pcmsolver.cmake b/cmake/custom/pcmsolver.cmake
 index da5f4906..eeaa98a0 100644
 --- a/cmake/custom/pcmsolver.cmake
