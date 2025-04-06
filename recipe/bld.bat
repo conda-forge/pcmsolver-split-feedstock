@@ -6,6 +6,7 @@ copy %BUILD_PREFIX%\Library\bin\flang-new.exe %BUILD_PREFIX%\Library\bin\flang.e
 
 :: millions of lines of warnings with clang-19
 set "CFLAGS=%CFLAGS% -w"
+set "CXXFLAGS=%CXXFLAGS% -w"
 
 :: -std=legacy" yields "error: Only -std=f2018 is allowed currently"
 
@@ -15,9 +16,9 @@ cmake %CMAKE_ARGS% ^
   -B build ^
   -D CMAKE_INSTALL_PREFIX="%LIBRARY_PREFIX%" ^
   -D CMAKE_BUILD_TYPE=Release ^
-  -D CMAKE_C_COMPILER=clang-cl ^
+  -D CMAKE_C_COMPILER="clang-cl" ^
   -D CMAKE_C_FLAGS="%CFLAGS%" ^
-  -D CMAKE_CXX_COMPILER=clang-cl ^
+  -D CMAKE_CXX_COMPILER="clang-cl" ^
   -D CMAKE_CXX_FLAGS="/EHsc %CXXFLAGS%" ^
   -D CMAKE_Fortran_COMPILER=flang ^
   -D CMAKE_Fortran_FLAGS="%FFLAGS%" ^
