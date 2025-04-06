@@ -5,8 +5,8 @@ SetLocal EnableDelayedExpansion
 copy %BUILD_PREFIX%\Library\bin\flang-new.exe %BUILD_PREFIX%\Library\bin\flang.exe
 
 :: millions of lines of warnings with clang-19
-set "CFLAGS=%CFLAGS% -w"
-set "CXXFLAGS=%CXXFLAGS% -w"
+set "CFLAGS=%CFLAGS% -w /EHsc"
+set "CXXFLAGS=%CXXFLAGS% -w /EHsc"
 
 :: -std=legacy" yields "error: Only -std=f2018 is allowed currently"
 
@@ -19,7 +19,7 @@ cmake %CMAKE_ARGS% ^
   -D CMAKE_C_COMPILER="clang-cl" ^
   -D CMAKE_C_FLAGS="%CFLAGS%" ^
   -D CMAKE_CXX_COMPILER="clang-cl" ^
-  -D CMAKE_CXX_FLAGS="/EHsc %CXXFLAGS%" ^
+  -D CMAKE_CXX_FLAGS="%CXXFLAGS%" ^
   -D CMAKE_Fortran_COMPILER=flang ^
   -D CMAKE_Fortran_FLAGS="%FFLAGS%" ^
   -D CMAKE_INSTALL_LIBDIR="lib" ^
