@@ -35,7 +35,7 @@ index 29581f78..766acea6 100644
    pure function pcmsolver_fstring_to_carray(string_f03) result(array_c)
      character(len=*), intent(in) :: string_f03
 -    character(kind=c_char, len=1) :: array_c(len(string_f03)+1)
-+    character(kind=c_char, len=1) :: array_c(len(string_f03)+2)
++    character(kind=c_char, len=1) :: array_c(len(string_f03)+10)
  
      integer :: i
  
