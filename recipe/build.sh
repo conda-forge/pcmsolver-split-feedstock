@@ -9,6 +9,7 @@ if [ "$(uname)" == "Darwin" ]; then
 fi
 
 ${BUILD_PREFIX}/bin/cmake ${CMAKE_ARGS} ${ARCH_ARGS} \
+  -G "Ninja" \
   -S ${SRC_DIR} \
   -B build \
   -D CMAKE_INSTALL_PREFIX=${PREFIX} \
@@ -32,8 +33,8 @@ ${BUILD_PREFIX}/bin/cmake ${CMAKE_ARGS} ${ARCH_ARGS} \
   -D ENABLE_CXX11_SUPPORT=ON
 
 # using make b/c VersionInfo suddenly not getting generated in time on Linux with Ninja
-#  -G "Ninja"
-
+#   so pre-building as need to use Ninja for Windows (NMake has another error)
+cmake --build build --target update_version
 cmake --build build --target install -j${CPU_COUNT}
 
 # Building both static & shared (instead of SHARED_LIBRARY_ONLY) since the tests
@@ -41,13 +42,15 @@ cmake --build build --target install -j${CPU_COUNT}
 #   removing all the static lib stuff immediately after install.
 rm ${PREFIX}/share/cmake/PCMSolver/PCMSolverTargets-static-release.cmake
 rm ${PREFIX}/share/cmake/PCMSolver/PCMSolverTargets-static.cmake
-rm ${PREFIX}/lib/libpcm.a
+# rm ${PREFIX}/lib/libpcm.a  # below after 0008 patch
+rm ${PREFIX}/lib/libpcmstat.a
 
 cd build
 if [[ "${CONDA_BUILD_CROSS_COMPILATION:-}" != "1" || "${CROSSCOMPILING_EMULATOR}" != "" ]]; then
-if [[ "$target_platform" == "linux-aarch64" || "$target_platform" == "linux-ppc64le" ]]; then
+if [[ "$target_platform" == "linux-aarch64" || "$target_platform" == "linux-ppc64le" || "$target_platform" == "linux-64" ]]; then
     ctest --rerun-failed --output-on-failure -j${CPU_COUNT} -E 'SPD|gauss-failure|green_spherical_diffuse'
     # green_spherical_diffuse excluded b/c failing on aarch64 and long duration for emulated
+    # green_spherical_diffuse on linux-64 works fine locally but suddenly (Apr 2025) fails with no output. still tested on osx-64
 else
     ctest --rerun-failed --output-on-failure -j${CPU_COUNT} -E 'SPD|gauss-failure'
     # SPD-failure test excluded after patch 0005 that commutes the fail
