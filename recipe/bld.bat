@@ -1,7 +1,7 @@
 @ECHO ON
 
 cmake %CMAKE_ARGS% ^
-  -G "MinGW Makefiles" ^
+  -G "Ninja" ^
   -S %SRC_DIR% ^
   -B build ^
   -D CMAKE_INSTALL_PREFIX="%LIBRARY_PREFIX%" ^
@@ -28,6 +28,10 @@ cmake %CMAKE_ARGS% ^
   -D BUILD_STANDALONE=ON ^
   -D ENABLE_CXX11_SUPPORT=ON
 if errorlevel 1 exit 1
+
+cmake --build build ^
+      --config Release ^
+      --target update_version
 
 cmake --build build ^
       --config Release ^
