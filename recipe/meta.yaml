@@ -35,6 +35,7 @@ requirements:
     - {{ compiler('fortran') }}           # [unix]
     - {{ stdlib('m2w64_c') }}             # [win]
     - {{ compiler('m2w64_c') }}           # [win]
+    - {{ compiler('m2w64_cxx') }}         # [win]
     - {{ compiler('m2w64_fortran') }}     # [win]
     - cmake
     - ninja
@@ -112,6 +113,7 @@ outputs:
         - {{ compiler('fortran') }}        # [unix]
         - {{ stdlib("m2w64_c") }}          # [win]
         - {{ compiler('m2w64_c') }}        # [win]
+        - {{ compiler('m2w64_cxx') }}      # [win]
         - {{ compiler('m2w64_fortran') }}  # [win]
       host:
         - libboost-headers
