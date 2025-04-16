@@ -1,9 +1,5 @@
 @ECHO ON
 
-set "CC=gcc.exe"
-set "CXX=g++.exe"
-set "FC=gfortran.exe"
-
 cmake %CMAKE_ARGS% ^
   -G "MinGW Makefiles" ^
   -S %SRC_DIR% ^
