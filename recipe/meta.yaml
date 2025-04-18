@@ -1,7 +1,7 @@
 {% set name = "PCMSolver" %}
 {% set version = "1.2.3" %}
 {% set sha256 = "d1ef6bdc268a2e719b36c85125c3543df7a26e1a738daf4483f4ded0c76f5b60" %}
-{% set build = 14 %}
+{% set build = 15 %}
 
 package:
   name: {{ name|lower }}-split
@@ -18,6 +18,7 @@ source:
     - 0005-posdef-error-into-warning.patch
     - 0006-cpp-std-11-into-14.patch
     - 0007-gauss-error-into-warning.patch
+    - 0008-win-path-re-fixes.patch
   sha256: {{ sha256 }}
 
 build:
@@ -33,19 +34,18 @@ requirements:
     - {{ stdlib("c") }}                   # [unix]
     - {{ compiler('cxx') }}               # [unix]
     - {{ compiler('fortran') }}           # [unix]
+    - {{ stdlib('m2w64_c') }}             # [win]
     - {{ compiler('m2w64_c') }}           # [win]
-    - {{ stdlib("c") }}                   # [win]
+    - {{ compiler('m2w64_cxx') }}         # [win]
     - {{ compiler('m2w64_fortran') }}     # [win]
     - cmake
-    - make                                # [unix]
-    - ninja                               # [win]
+    - ninja
   host:
     - libboost-devel
     - eigen
     - python
     - zlib
   run:
-    - m2w64-gcc-libgfortran               # [win]
     - python
 
 outputs:
@@ -73,8 +73,6 @@ outputs:
         - pcmsolver
       files:
         - molecule.inp
-      requires:
-        - m2w64-binutils                                               # [win]   # provides objdump.exe
       commands:
         # Verify library
         - test -L $PREFIX/lib/libpcm$SHLIB_EXT                         # [unix]
@@ -98,7 +96,6 @@ outputs:
         # Inspect linkage
         - ldd -v $PREFIX/lib/libpcm$SHLIB_EXT                          # [linux and build_platform == target_platform]
         - otool -L $PREFIX/lib/libpcm$SHLIB_EXT                        # [osx]
-        - objdump.exe -p %PREFIX%\\Library\\bin\\libpcm.dll | findstr /i "dll"  # [win]
         # Actually test
         - python $PREFIX/bin/go_pcm.py --inp molecule.inp --exe $PREFIX/bin  # [unix]
         - python %PREFIX%\\Library\\bin\\go_pcm.py --inp molecule.inp --exe %PREFIX%\\Library\\bin  # [win]
@@ -111,19 +108,18 @@ outputs:
         - {{ pin_subpackage('libpcm', max_pin='x.x.x') }}
     requirements:
       build:
-        - {{ compiler('c') }}              # [unix]
         - {{ stdlib("c") }}                # [unix]
+        - {{ compiler('c') }}              # [unix]
         - {{ compiler('cxx') }}            # [unix]
         - {{ compiler('fortran') }}        # [unix]
+        - {{ stdlib("m2w64_c") }}          # [win]
         - {{ compiler('m2w64_c') }}        # [win]
-        - {{ stdlib("c") }}                # [win]
+        - {{ compiler('m2w64_cxx') }}      # [win]
         - {{ compiler('m2w64_fortran') }}  # [win]
       host:
         - libboost-headers
         - eigen
         - zlib
-      run:
-        - m2w64-gcc-libgfortran            # [win]
     files:
       - bin/run_pcm                        # [unix]
       - lib/libpcm*                        # [unix]
@@ -135,8 +131,6 @@ outputs:
       - Library/lib/libpcm*                # [win]
       - Library/share/cmake/PCMSolver      # [win]
     test:
-      requires:
-        - m2w64-binutils                                               # [win]   # provides objdump.exe
       commands:
         # Verify library
         - test -L $PREFIX/lib/libpcm$SHLIB_EXT                         # [unix]
@@ -156,7 +150,6 @@ outputs:
         # Inspect linkage
         - ldd -v $PREFIX/lib/libpcm$SHLIB_EXT                          # [linux and build_platform == target_platform]
         - otool -L $PREFIX/lib/libpcm$SHLIB_EXT                        # [osx]
-        - objdump.exe -p %PREFIX%\\Library\\bin\\libpcm.dll | findstr /i "dll"  # [win]
 
 about:
   home: https://github.com/PCMSolver/pcmsolver

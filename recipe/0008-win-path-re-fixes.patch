@@ -1,0 +1,130 @@
+From bf128ccddc50584e80413c6dc7b7d509155aa809 Mon Sep 17 00:00:00 2001
+From: "Lori A. Burns" <lori.burns@gmail.com>
+Date: Sun, 6 Apr 2025 03:04:17 -0400
+Subject: [PATCH] asdf
+
+---
+ CMakeLists.txt                     | 3 +++
+ api/pcmsolver.f90                  | 2 +-
+ cmake/autocmake/external/docopt.py | 8 ++++----
+ cmake/custom/pcmsolver.cmake       | 5 +++++
+ cmake/lib/docopt/docopt.py         | 2 +-
+ tests/C_host/CMakeLists.txt        | 4 ++++
+ 6 files changed, 18 insertions(+), 6 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 4df71327..57dadb85 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -4,6 +4,9 @@
+ # set minimum cmake version
+ cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
+ cmake_policy(SET CMP0053 NEW)
++if(POLICY CMP0177)
++    cmake_policy(SET CMP0177 NEW)
++endif()
+
+ # project name
+ project(PCMSolver LANGUAGES CXX C Fortran)
+diff --git a/api/pcmsolver.f90 b/api/pcmsolver.f90
+index 29581f78..766acea6 100644
+--- a/api/pcmsolver.f90
++++ b/api/pcmsolver.f90
+@@ -254,7 +254,7 @@ contains
+   ! \return array_c Null-terminated C string in a character array.
+   pure function pcmsolver_fstring_to_carray(string_f03) result(array_c)
+     character(len=*), intent(in) :: string_f03
+-    character(kind=c_char, len=1) :: array_c(len(string_f03)+1)
++    character(kind=c_char, len=1) :: array_c(len(string_f03)+1)
+
+     integer :: i
+
+diff --git a/cmake/autocmake/external/docopt.py b/cmake/autocmake/external/docopt.py
+index 7b927e2f..2a9590d0 100644
+--- a/cmake/autocmake/external/docopt.py
++++ b/cmake/autocmake/external/docopt.py
+@@ -162,8 +162,8 @@ class Argument(ChildPattern):
+
+     @classmethod
+     def parse(class_, source):
+-        name = re.findall('(<\S*?>)', source)[0]
+-        value = re.findall('\[default: (.*)\]', source, flags=re.I)
++        name = re.findall(r'(<\S*?>)', source)[0]
++        value = re.findall(r'\[default: (.*)\]', source, flags=re.I)
+         return class_(name, value[0] if value else None)
+
+
+@@ -204,7 +204,7 @@ class Option(ChildPattern):
+             else:
+                 argcount = 1
+         if argcount:
+-            matched = re.findall('\[default: (.*)\]', description, flags=re.I)
++            matched = re.findall(r'\[default: (.*)\]', description, flags=re.I)
+             value = matched[0] if matched else None
+         return class_(short, long, argcount, value)
+
+@@ -453,7 +453,7 @@ def parse_argv(tokens, options, options_first=False):
+
+ def parse_defaults(doc):
+     # in python < 2.7 you can't pass flags=re.MULTILINE
+-    split = re.split('\n *(<\S+?>|-\S+?)', doc)[1:]
++    split = re.split(r'\n *(<\S+?>|-\S+?)', doc)[1:]
+     split = [s1 + s2 for s1, s2 in zip(split[::2], split[1::2])]
+     options = [Option.parse(s) for s in split if s.startswith('-')]
+     #arguments = [Argument.parse(s) for s in split if s.startswith('<')]
+diff --git a/cmake/custom/pcmsolver.cmake b/cmake/custom/pcmsolver.cmake
+index da5f4906..eeaa98a0 100644
+--- a/cmake/custom/pcmsolver.cmake
++++ b/cmake/custom/pcmsolver.cmake
+@@ -30,6 +30,11 @@ else()
+   set(PYMOD_INSTALL_LIBDIR "${PYMOD_INSTALL_LIBDIR}" CACHE STRING "Location within CMAKE_INSTALL_LIBDIR to which Python modules are installed" FORCE)
+ endif()
+ file(TO_NATIVE_PATH "${CMAKE_INSTALL_LIBDIR}${PYMOD_INSTALL_LIBDIR}/pcmsolver" PYMOD_INSTALL_FULLDIR)
++message("NATIVE ${PYMOD_INSTALL_FULLDIR}")
++file(TO_CMAKE_PATH "${CMAKE_INSTALL_LIBDIR}${PYMOD_INSTALL_LIBDIR}/pcmsolver" PYMOD_INSTALL_FULLDIR)
++message("CMAKE  ${PYMOD_INSTALL_FULLDIR}")
++set(PYMOD_INSTALL_FULLDIR "${CMAKE_INSTALL_LIBDIR}${PYMOD_INSTALL_LIBDIR}/pcmsolver")
++message("SET    ${PYMOD_INSTALL_FULLDIR}")
+
+ add_custom_target(update_version
+   ALL
+diff --git a/cmake/lib/docopt/docopt.py b/cmake/lib/docopt/docopt.py
+index ceb4e7eb..f4313385 100644
+--- a/cmake/lib/docopt/docopt.py
++++ b/cmake/lib/docopt/docopt.py
+@@ -462,7 +462,7 @@ def parse_defaults(doc):
+
+
+ def parse_section(name, source):
+-    pattern = re.compile('^([^\n]*' + name + '[^\n]*\n?(?:[ \t].*?(?:\n|$))*)',
++    pattern = re.compile(r'^([^\n]*' + name + r'[^\n]*\n?(?:[ \t].*?(?:\n|$))*)',
+                          re.IGNORECASE | re.MULTILINE)
+     return [s.strip() for s in pattern.findall(source)]
+
+diff --git a/tests/C_host/CMakeLists.txt b/tests/C_host/CMakeLists.txt
+index d51758e6..560832c7 100644
+--- a/tests/C_host/CMakeLists.txt
++++ b/tests/C_host/CMakeLists.txt
+@@ -4,7 +4,9 @@ target_include_directories(C_host
+     ${PROJECT_SOURCE_DIR}/tests/C_host
+   )
+ target_link_libraries(C_host PCMSolver)
++#if (NOT WIN32)
+ target_link_libraries(C_host m)
++#endif()
+ set_target_properties(C_host
+   PROPERTIES
+     LINKER_LANGUAGE C
+@@ -28,7 +30,9 @@ target_include_directories(fail-C_host
+     ${PROJECT_SOURCE_DIR}/tests/C_host
+   )
+ target_link_libraries(fail-C_host PCMSolver)
++#if (NOT WIN32)
+ target_link_libraries(fail-C_host m)
++#endif()
+ set_target_properties(fail-C_host
+   PROPERTIES
+     LINKER_LANGUAGE C
+-- 
+2.40.1
+
