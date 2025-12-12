@@ -27,7 +27,7 @@ source:
 build:
   number: {{ build }}
   # Only build for one python version because python module is repackaged as noarch
-  skip: True                              # [py != 312]
+  skip: true  # [py != 312]
 
 requirements:
   build:
@@ -59,9 +59,9 @@ outputs:
         - {{ pin_subpackage('libpcm', max_pin='x.x.x') }}
     requirements:
       host:
-        - python
+        - python {{ python_min }}
       run:
-        - python
+        - python >={{ python_min }}
         - {{ pin_subpackage('libpcm', max_pin='x.x.x') }}
     files:
       - bin/*.py                                                       # [unix]
@@ -69,6 +69,8 @@ outputs:
       - Library/bin/*.py                                               # [win]
       - Lib/site-packages/pcmsolver                                    # [win]
     test:
+      requires:
+        - python {{ python_min }}
       imports:
         - pcmsolver
       files:
