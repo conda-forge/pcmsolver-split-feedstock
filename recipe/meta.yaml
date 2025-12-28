@@ -11,17 +11,17 @@ source:
   url: https://github.com/{{ name }}/{{ name|lower }}/archive/v{{ version }}.tar.gz
   patches:
     # 0004 and 0005 introduced at build=10
-    - 0001-update-cmake-adapt-for-win-add-licenses.patch
-    - 0002-final-touches.patch
-    - 0003-likely-catch-fix-for-osx_arm64.patch
-    - 0004-fix-regex-warnings.patch
-    - 0005-posdef-error-into-warning.patch
-    - 0006-cpp-std-11-into-14.patch
-    - 0007-gauss-error-into-warning.patch
-    - 0008-win-path-re-fixes.patch
-    - 0008-avoid-multiple-rules-generate-ninja.patch
-    - 0009-avoid-headers-in-windows.patch
-    - 0010-skip-libm-linking.patch
+    - patches/0001-update-cmake-adapt-for-win-add-licenses.patch
+    - patches/0002-final-touches.patch
+    - patches/0003-likely-catch-fix-for-osx_arm64.patch
+    - patches/0004-fix-regex-warnings.patch
+    - patches/0005-posdef-error-into-warning.patch
+    - patches/0006-cpp-std-11-into-14.patch
+    - patches/0007-gauss-error-into-warning.patch
+    - patches/0008-win-path-re-fixes.patch
+    - patches/0008-avoid-multiple-rules-generate-ninja.patch
+    - patches/0009-avoid-headers-in-windows.patch
+    - patches/0010-skip-libm-linking.patch
   sha256: {{ sha256 }}
 
 build:
