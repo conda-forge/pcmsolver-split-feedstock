@@ -1,7 +1,7 @@
-From 278f94d3145b8369c53d9adbc6136bf399ac451f Mon Sep 17 00:00:00 2001
+From 8ed43863292cb8e1d00d3377ef5fe30e7da9f93d Mon Sep 17 00:00:00 2001
 From: "Lori A. Burns" <lori.burns@gmail.com>
 Date: Fri, 9 Aug 2024 01:30:05 -0400
-Subject: [PATCH 1/2] fix regex warnings
+Subject: [PATCH 04/11] fix regex warnings
 
 ---
  cmake/lib/docopt/docopt.py | 8 ++++----
@@ -75,5 +75,3 @@ index 03ad0b09..2db26755 100644
      )
  
      mobj = sane_tag.match(meta_latest_annotated_v_tag)
--- 
-2.40.1

@@ -1,7 +1,7 @@
-From 0dd69d0cb4bfb35942574ebef777d1023916e7ff Mon Sep 17 00:00:00 2001
+From 59569b66fed9871875a8b49522bc0441e5cd62ff Mon Sep 17 00:00:00 2001
 From: "Lori A. Burns" <lori.burns@gmail.com>
 Date: Tue, 30 May 2023 23:07:42 -0400
-Subject: [PATCH 1/2] final touches
+Subject: [PATCH 02/11] final touches
 
 ---
  cmake/PCMSolverConfig.cmake.in | 8 ++++----
@@ -81,6 +81,3 @@ index 06f65600..9afff3a3 100644
    "PCMSolver_PYMOD"
    )
  
--- 
-2.40.1
-

@@ -18,10 +18,10 @@ source:
     - patches/0005-posdef-error-into-warning.patch
     - patches/0006-cpp-std-11-into-14.patch
     - patches/0007-gauss-error-into-warning.patch
-    - patches/0008-win-path-re-fixes.patch
-    - patches/0008-avoid-multiple-rules-generate-ninja.patch
-    - patches/0009-avoid-headers-in-windows.patch
-    - patches/0010-skip-libm-linking.patch
+    - patches/0008-win-path-regex-fixes.patch
+    - patches/0009-avoid-multiple-rules-generate-ninja.patch
+    - patches/0010-avoid-headers-in-windows.patch
+    - patches/0011-skip-libm-linking.patch
   sha256: {{ sha256 }}
 
 build:

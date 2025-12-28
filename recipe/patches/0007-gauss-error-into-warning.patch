@@ -1,7 +1,7 @@
-From 0d95a2faeb041d2c8019f692ff865779357be599 Mon Sep 17 00:00:00 2001
+From 7e72285fbbf1bcc3194a1f462865d4c9c2129cfb Mon Sep 17 00:00:00 2001
 From: "Lori A. Burns" <lori.burns@gmail.com>
 Date: Fri, 13 Sep 2024 17:35:42 -0400
-Subject: [PATCH] gauss error into warning
+Subject: [PATCH 07/11] gauss error into warning
 
 ---
  src/bi_operators/IBoundaryIntegralOperator.cpp | 1 +
@@ -41,5 +41,3 @@ index 56d0a1ca..4f9a131c 100644
    }
  }
  
--- 
-2.44.0

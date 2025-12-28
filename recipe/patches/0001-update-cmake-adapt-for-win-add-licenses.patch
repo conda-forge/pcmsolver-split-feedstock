@@ -1,39 +1,37 @@
-From f31662a6ad976828a75f3d5d07a519f3b5e3934d Mon Sep 17 00:00:00 2001
+From a3cfe4e7b35fd00dc4d6487f2bc7735cd70f2ed6 Mon Sep 17 00:00:00 2001
 From: "Lori A. Burns" <lori.burns@gmail.com>
 Date: Sat, 19 Dec 2020 13:48:18 -0500
-Subject: [PATCH] update cmake, adapt for win, add licenses
+Subject: [PATCH 01/11] update cmake, adapt for win, add licenses
 
 ---
- CMakeLists.txt                         |   6 +-
- THIRD-PARTY-LICENSES                   | 419 +++++++++++++++++++++++++++++++++
- cmake/PCMSolverConfig.cmake.in         | 193 ++++++++-------
- cmake/custom/FindEigen3.cmake          |  81 -------
- cmake/custom/compilers/CXXFlags.cmake  |   2 +-
- cmake/custom/eigen.cmake               |   2 +-
- cmake/custom/find_python_module.cmake  |   2 +-
- cmake/custom/hide_FindEigen3.cmake     |  81 +++++++
- cmake/custom/pcmsolver.cmake           |  10 +-
- cmake/downloaded/autocmake_boost.cmake |   1 +
- cmake/downloaded/boost_cleanup.cmake   |  14 +-
- cmake/downloaded/boost_configure.cmake |   2 +-
- setup.py                               |   4 +-
- src/CMakeLists.txt                     |  35 ++-
- src/bin/CMakeLists.txt                 |  23 +-
- src/cavity/ICavity.cpp                 |   1 +
- tests/CMakeLists.txt                   |   2 +-
- tests/input/CMakeLists.txt             |  10 +-
- tests/standalone/CMakeLists.txt        |  10 +-
- tools/getkw.py                         |   6 +-
- tools/pcmparser.py                     |  11 +-
- tools/pyparsing.py                     |   8 +-
- tools/versioner.py                     |  27 ++-
- 23 files changed, 722 insertions(+), 228 deletions(-)
+ CMakeLists.txt                                |   6 +-
+ THIRD-PARTY-LICENSES                          | 419 ++++++++++++++++++
+ cmake/PCMSolverConfig.cmake.in                | 201 +++++----
+ cmake/custom/compilers/CXXFlags.cmake         |   2 +-
+ cmake/custom/eigen.cmake                      |   2 +-
+ cmake/custom/find_python_module.cmake         |   2 +-
+ ...FindEigen3.cmake => hide_FindEigen3.cmake} |   0
+ cmake/custom/pcmsolver.cmake                  |  10 +-
+ cmake/downloaded/autocmake_boost.cmake        |   1 +
+ cmake/downloaded/boost_cleanup.cmake          |  14 +-
+ cmake/downloaded/boost_configure.cmake        |   2 +-
+ setup.py                                      |   4 +-
+ src/CMakeLists.txt                            |  35 +-
+ src/bin/CMakeLists.txt                        |  23 +-
+ src/cavity/ICavity.cpp                        |   1 +
+ tests/CMakeLists.txt                          |   2 +-
+ tests/input/CMakeLists.txt                    |  10 +-
+ tests/standalone/CMakeLists.txt               |  10 +-
+ tools/getkw.py                                |   6 +-
+ tools/pcmparser.py                            |  11 +-
+ tools/pyparsing.py                            |   8 +-
+ tools/versioner.py                            |  27 +-
+ 22 files changed, 645 insertions(+), 151 deletions(-)
  create mode 100644 THIRD-PARTY-LICENSES
- delete mode 100644 cmake/custom/FindEigen3.cmake
- create mode 100644 cmake/custom/hide_FindEigen3.cmake
+ rename cmake/custom/{FindEigen3.cmake => hide_FindEigen3.cmake} (100%)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 0375891..4df7132 100644
+index 03758919..4df71327 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -2,7 +2,8 @@
@@ -58,7 +56,7 @@ index 0375891..4df7132 100644
  include(autocmake_boost)
 diff --git a/THIRD-PARTY-LICENSES b/THIRD-PARTY-LICENSES
 new file mode 100644
-index 0000000..30f4222
+index 00000000..30f42226
 --- /dev/null
 +++ b/THIRD-PARTY-LICENSES
 @@ -0,0 +1,419 @@
@@ -482,7 +480,7 @@ index 0000000..30f4222
 +If You choose to distribute Source Code Form that is Incompatible With Secondary Licenses under the terms of this version of the License, the notice described in Exhibit B of this License must be attached.
 +
 diff --git a/cmake/PCMSolverConfig.cmake.in b/cmake/PCMSolverConfig.cmake.in
-index 0dbbd44..fdc0fbc 100644
+index 0dbbd440..fdc0fbcb 100644
 --- a/cmake/PCMSolverConfig.cmake.in
 +++ b/cmake/PCMSolverConfig.cmake.in
 @@ -7,16 +7,29 @@
@@ -521,7 +519,7 @@ index 0dbbd44..fdc0fbc 100644
  #
  # Available components: shared static exe
  #
-@@ -31,10 +44,16 @@
+@@ -31,18 +44,24 @@
  #
  # ::
  #
@@ -529,18 +527,18 @@ index 0dbbd44..fdc0fbc 100644
 -# target. ::
 +# If PCMSolver is found and no language components are requested, this module
 +# defines at least the following :prop_tgt:`IMPORTED` target. ::
-+#
-+#   PCMSolver::pcm - the main PCMSolver library with header & defs attached.
-+#
-+# If PCMSolver is found, depending on components requested and fullness of the
-+# installation, this module defines up to the following :prop_tgt:`IMPORTED` targets. ::
  #
  #   PCMSolver::pcm - the main PCMSolver library with header & defs attached.
-+#   PCMSolver::exe - the PCMSolver run_pcm program (COMPONENT exe)
  #
++# If PCMSolver is found, depending on components requested and fullness of the
++# installation, this module defines up to the following :prop_tgt:`IMPORTED` targets. ::
++#
++#   PCMSolver::pcm - the main PCMSolver library with header & defs attached.
++#   PCMSolver::exe - the PCMSolver run_pcm program (COMPONENT exe)
++#
  #
  # Suggested usage:
-@@ -42,7 +61,7 @@
+ #
  # ::
  #
  #   find_package(PCMSolver)
@@ -584,8 +582,25 @@ index 0dbbd44..fdc0fbc 100644
 +#   truncate their builds (e.g., build static for tests but only ship shared)
 +if (EXISTS "${CMAKE_CURRENT_LIST_DIR}/${pcm}Targets-shared.cmake")
 +    set(${pcm}_shared_FOUND 1)
++endif()
++if (EXISTS "${CMAKE_CURRENT_LIST_DIR}/${pcm}Targets-static.cmake")
++    set(${pcm}_static_FOUND 1)
++endif()
++list(FIND ${pcm}_FIND_COMPONENTS "shared" _seek_shared)
++list(FIND ${pcm}_FIND_COMPONENTS "static" _seek_static)
++
++# check executable component
++if (@BUILD_STANDALONE@ AND EXISTS "${CMAKE_CURRENT_LIST_DIR}/${pcm}Targets-exe.cmake")  # BUILD_STANDALONE
++    set(${pcm}_exe_FOUND 1)
++endif()
++list(FIND ${pcm}_FIND_COMPONENTS "exe" _seek_exe)
++
++# check library dependency available
++include(CMakeFindDependencyMacro)
++if(NOT TARGET ZLIB::ZLIB)
++    find_dependency(ZLIB)
  endif()
--
+ 
 -# find executable
 -list(FIND ${PN}_FIND_COMPONENTS "exe" _seek_exe)
 -unset(_temp_exe CACHE)
@@ -604,12 +619,8 @@ index 0dbbd44..fdc0fbc 100644
 -            message(STATUS "${PN}Config missing component: executable (${PN}: ${_temp_exe})")
 -        endif()
 -    endif()
-+if (EXISTS "${CMAKE_CURRENT_LIST_DIR}/${pcm}Targets-static.cmake")
-+    set(${pcm}_static_FOUND 1)
- endif()
-+list(FIND ${pcm}_FIND_COMPONENTS "shared" _seek_shared)
-+list(FIND ${pcm}_FIND_COMPONENTS "static" _seek_static)
- 
+-endif()
+-
 -# find library: shared, static, or whichever
 -set(_hold_library_suffixes ${CMAKE_FIND_LIBRARY_SUFFIXES})
 -list(FIND ${PN}_FIND_COMPONENTS "shared" _seek_shared)
@@ -618,10 +629,7 @@ index 0dbbd44..fdc0fbc 100644
 -    set(CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_SHARED_LIBRARY_SUFFIX})
 -elseif(_seek_static GREATER -1)
 -    set(CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_STATIC_LIBRARY_SUFFIX})
-+# check executable component
-+if (@BUILD_STANDALONE@ AND EXISTS "${CMAKE_CURRENT_LIST_DIR}/${pcm}Targets-exe.cmake")  # BUILD_STANDALONE
-+    set(${pcm}_exe_FOUND 1)
- endif()
+-endif()
 -unset(_temp CACHE)
 -find_library(_temp
 -             NAMES pcm
@@ -649,18 +657,12 @@ index 0dbbd44..fdc0fbc 100644
 -            message(STATUS "${PN}Config missing component: library (${PN}: ${_temp})")
 -        endif()
 -    endif()
-+list(FIND ${pcm}_FIND_COMPONENTS "exe" _seek_exe)
-+
-+# check library dependency available
-+include(CMakeFindDependencyMacro)
-+if(NOT TARGET ZLIB::ZLIB)
-+    find_dependency(ZLIB)
- endif()
+-endif()
 -set(CMAKE_FIND_LIBRARY_SUFFIXES ${_hold_library_suffixes})
 -set(${PN}_LIBRARIES ${${PN}_LIBRARY})
 -set(${PN}_DEFINITIONS USING_${PN})
 -set(${PN}_PYMOD ${PACKAGE_PREFIX_DIR}/@CMAKE_INSTALL_LIBDIR@/@PYMOD_INSTALL_LIBDIR@)
- 
+-
 -check_required_components(${PN})
 +# Check all required components are available before trying to load any
 +check_required_components(${pcm})
@@ -703,8 +705,7 @@ index 0dbbd44..fdc0fbc 100644
 +        include("${CMAKE_CURRENT_LIST_DIR}/${pcm}Targets-exe.cmake")
 +        get_property(${pcm}_EXECUTABLE TARGET ${pcm}::exe PROPERTY LOCATION)
      endif()
--endif()
- 
++
 +    set(${pcm}_PYMOD ${PACKAGE_PREFIX_DIR}/@CMAKE_INSTALL_LIBDIR@@PYMOD_INSTALL_LIBDIR@)  # CMAKE_INSTALL_LIBDIR, PYMOD_INSTALL_LIBDIR
 +
 +    if (CMAKE_VERSION VERSION_GREATER 3.15)
@@ -727,96 +728,10 @@ index 0dbbd44..fdc0fbc 100644
 +        message(VERBOSE "${pcm}_INCLUDE_DIRS           ${${pcm}_INCLUDE_DIRS}")
 +    endif()
 +
-+endif()
-diff --git a/cmake/custom/FindEigen3.cmake b/cmake/custom/FindEigen3.cmake
-deleted file mode 100644
-index 9c546a0..0000000
---- a/cmake/custom/FindEigen3.cmake
-+++ /dev/null
-@@ -1,81 +0,0 @@
--# - Try to find Eigen3 lib
--#
--# This module supports requiring a minimum version, e.g. you can do
--#   find_package(Eigen3 3.1.2)
--# to require version 3.1.2 or newer of Eigen3.
--#
--# Once done this will define
--#
--#  EIGEN3_FOUND - system has eigen lib with correct version
--#  EIGEN3_INCLUDE_DIR - the eigen include directory
--#  EIGEN3_VERSION - eigen version
--
--# Copyright (c) 2006, 2007 Montel Laurent, <montel@kde.org>
--# Copyright (c) 2008, 2009 Gael Guennebaud, <g.gael@free.fr>
--# Copyright (c) 2009 Benoit Jacob <jacob.benoit.1@gmail.com>
--# Redistribution and use is allowed according to the terms of the 2-clause BSD license.
--
--if(NOT Eigen3_FIND_VERSION)
--  if(NOT Eigen3_FIND_VERSION_MAJOR)
--    set(Eigen3_FIND_VERSION_MAJOR 2)
--  endif(NOT Eigen3_FIND_VERSION_MAJOR)
--  if(NOT Eigen3_FIND_VERSION_MINOR)
--    set(Eigen3_FIND_VERSION_MINOR 91)
--  endif(NOT Eigen3_FIND_VERSION_MINOR)
--  if(NOT Eigen3_FIND_VERSION_PATCH)
--    set(Eigen3_FIND_VERSION_PATCH 0)
--  endif(NOT Eigen3_FIND_VERSION_PATCH)
--
--  set(Eigen3_FIND_VERSION "${Eigen3_FIND_VERSION_MAJOR}.${Eigen3_FIND_VERSION_MINOR}.${Eigen3_FIND_VERSION_PATCH}")
--endif(NOT Eigen3_FIND_VERSION)
--
--macro(_eigen3_check_version)
--  file(READ "${EIGEN3_INCLUDE_DIR}/Eigen/src/Core/util/Macros.h" _eigen3_version_header)
--
--  string(REGEX MATCH "define[ \t]+EIGEN_WORLD_VERSION[ \t]+([0-9]+)" _eigen3_world_version_match "${_eigen3_version_header}")
--  set(EIGEN3_WORLD_VERSION "${CMAKE_MATCH_1}")
--  string(REGEX MATCH "define[ \t]+EIGEN_MAJOR_VERSION[ \t]+([0-9]+)" _eigen3_major_version_match "${_eigen3_version_header}")
--  set(EIGEN3_MAJOR_VERSION "${CMAKE_MATCH_1}")
--  string(REGEX MATCH "define[ \t]+EIGEN_MINOR_VERSION[ \t]+([0-9]+)" _eigen3_minor_version_match "${_eigen3_version_header}")
--  set(EIGEN3_MINOR_VERSION "${CMAKE_MATCH_1}")
--
--  set(EIGEN3_VERSION ${EIGEN3_WORLD_VERSION}.${EIGEN3_MAJOR_VERSION}.${EIGEN3_MINOR_VERSION})
--  if(${EIGEN3_VERSION} VERSION_LESS ${Eigen3_FIND_VERSION})
--    set(EIGEN3_VERSION_OK FALSE)
--  else(${EIGEN3_VERSION} VERSION_LESS ${Eigen3_FIND_VERSION})
--    set(EIGEN3_VERSION_OK TRUE)
--  endif(${EIGEN3_VERSION} VERSION_LESS ${Eigen3_FIND_VERSION})
--
--  if(NOT EIGEN3_VERSION_OK)
--
--    message(STATUS "Eigen3 version ${EIGEN3_VERSION} found in ${EIGEN3_INCLUDE_DIR}, "
--                   "but at least version ${Eigen3_FIND_VERSION} is required")
--  endif(NOT EIGEN3_VERSION_OK)
--endmacro(_eigen3_check_version)
--
--if (EIGEN3_INCLUDE_DIR)
--
--  # in cache already
--  _eigen3_check_version()
--  set(EIGEN3_FOUND ${EIGEN3_VERSION_OK})
--
--else (EIGEN3_INCLUDE_DIR)
--
--  find_path(EIGEN3_INCLUDE_DIR NAMES signature_of_eigen3_matrix_library
--      PATHS
--      ${CMAKE_INSTALL_PREFIX}/include
--      ${KDE4_INCLUDE_DIR}
--      PATH_SUFFIXES eigen3 eigen
--    )
--
--  if(EIGEN3_INCLUDE_DIR)
--    _eigen3_check_version()
--  endif(EIGEN3_INCLUDE_DIR)
--
--  include(FindPackageHandleStandardArgs)
--  find_package_handle_standard_args(Eigen3 DEFAULT_MSG EIGEN3_INCLUDE_DIR EIGEN3_VERSION_OK)
--
--  mark_as_advanced(EIGEN3_INCLUDE_DIR)
--
--endif(EIGEN3_INCLUDE_DIR)
+ endif()
 -
 diff --git a/cmake/custom/compilers/CXXFlags.cmake b/cmake/custom/compilers/CXXFlags.cmake
-index 4c9afe5..b6f6fd8 100644
+index 4c9afe54..b6f6fd8c 100644
 --- a/cmake/custom/compilers/CXXFlags.cmake
 +++ b/cmake/custom/compilers/CXXFlags.cmake
 @@ -7,7 +7,7 @@ if(ENABLE_CXX11_SUPPORT)
@@ -829,7 +744,7 @@ index 4c9afe5..b6f6fd8 100644
    if(cxx11_flag)
      set(CXX_STANDARD_FLAG ${cxx11_flag})
 diff --git a/cmake/custom/eigen.cmake b/cmake/custom/eigen.cmake
-index bd635df..7882a8e 100644
+index bd635df0..7882a8ed 100644
 --- a/cmake/custom/eigen.cmake
 +++ b/cmake/custom/eigen.cmake
 @@ -13,7 +13,7 @@
@@ -842,7 +757,7 @@ index bd635df..7882a8e 100644
      set(EIGEN3_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/external/eigen3/include/eigen3)
      message(STATUS "Eigen 3.3.2 is located here: " ${EIGEN3_INCLUDE_DIR})
 diff --git a/cmake/custom/find_python_module.cmake b/cmake/custom/find_python_module.cmake
-index 314a68e..af48089 100644
+index 314a68e3..af48089f 100644
 --- a/cmake/custom/find_python_module.cmake
 +++ b/cmake/custom/find_python_module.cmake
 @@ -9,7 +9,7 @@ macro(find_python_module module)
@@ -854,95 +769,12 @@ index 314a68e..af48089 100644
  			"import re, ${module}; print(re.compile('/__init__.py.*').sub('',${module}.__file__))"
  			RESULT_VARIABLE _${module}_status
  			OUTPUT_VARIABLE _${module}_location
-diff --git a/cmake/custom/hide_FindEigen3.cmake b/cmake/custom/hide_FindEigen3.cmake
-new file mode 100644
-index 0000000..9c546a0
---- /dev/null
-+++ b/cmake/custom/hide_FindEigen3.cmake
-@@ -0,0 +1,81 @@
-+# - Try to find Eigen3 lib
-+#
-+# This module supports requiring a minimum version, e.g. you can do
-+#   find_package(Eigen3 3.1.2)
-+# to require version 3.1.2 or newer of Eigen3.
-+#
-+# Once done this will define
-+#
-+#  EIGEN3_FOUND - system has eigen lib with correct version
-+#  EIGEN3_INCLUDE_DIR - the eigen include directory
-+#  EIGEN3_VERSION - eigen version
-+
-+# Copyright (c) 2006, 2007 Montel Laurent, <montel@kde.org>
-+# Copyright (c) 2008, 2009 Gael Guennebaud, <g.gael@free.fr>
-+# Copyright (c) 2009 Benoit Jacob <jacob.benoit.1@gmail.com>
-+# Redistribution and use is allowed according to the terms of the 2-clause BSD license.
-+
-+if(NOT Eigen3_FIND_VERSION)
-+  if(NOT Eigen3_FIND_VERSION_MAJOR)
-+    set(Eigen3_FIND_VERSION_MAJOR 2)
-+  endif(NOT Eigen3_FIND_VERSION_MAJOR)
-+  if(NOT Eigen3_FIND_VERSION_MINOR)
-+    set(Eigen3_FIND_VERSION_MINOR 91)
-+  endif(NOT Eigen3_FIND_VERSION_MINOR)
-+  if(NOT Eigen3_FIND_VERSION_PATCH)
-+    set(Eigen3_FIND_VERSION_PATCH 0)
-+  endif(NOT Eigen3_FIND_VERSION_PATCH)
-+
-+  set(Eigen3_FIND_VERSION "${Eigen3_FIND_VERSION_MAJOR}.${Eigen3_FIND_VERSION_MINOR}.${Eigen3_FIND_VERSION_PATCH}")
-+endif(NOT Eigen3_FIND_VERSION)
-+
-+macro(_eigen3_check_version)
-+  file(READ "${EIGEN3_INCLUDE_DIR}/Eigen/src/Core/util/Macros.h" _eigen3_version_header)
-+
-+  string(REGEX MATCH "define[ \t]+EIGEN_WORLD_VERSION[ \t]+([0-9]+)" _eigen3_world_version_match "${_eigen3_version_header}")
-+  set(EIGEN3_WORLD_VERSION "${CMAKE_MATCH_1}")
-+  string(REGEX MATCH "define[ \t]+EIGEN_MAJOR_VERSION[ \t]+([0-9]+)" _eigen3_major_version_match "${_eigen3_version_header}")
-+  set(EIGEN3_MAJOR_VERSION "${CMAKE_MATCH_1}")
-+  string(REGEX MATCH "define[ \t]+EIGEN_MINOR_VERSION[ \t]+([0-9]+)" _eigen3_minor_version_match "${_eigen3_version_header}")
-+  set(EIGEN3_MINOR_VERSION "${CMAKE_MATCH_1}")
-+
-+  set(EIGEN3_VERSION ${EIGEN3_WORLD_VERSION}.${EIGEN3_MAJOR_VERSION}.${EIGEN3_MINOR_VERSION})
-+  if(${EIGEN3_VERSION} VERSION_LESS ${Eigen3_FIND_VERSION})
-+    set(EIGEN3_VERSION_OK FALSE)
-+  else(${EIGEN3_VERSION} VERSION_LESS ${Eigen3_FIND_VERSION})
-+    set(EIGEN3_VERSION_OK TRUE)
-+  endif(${EIGEN3_VERSION} VERSION_LESS ${Eigen3_FIND_VERSION})
-+
-+  if(NOT EIGEN3_VERSION_OK)
-+
-+    message(STATUS "Eigen3 version ${EIGEN3_VERSION} found in ${EIGEN3_INCLUDE_DIR}, "
-+                   "but at least version ${Eigen3_FIND_VERSION} is required")
-+  endif(NOT EIGEN3_VERSION_OK)
-+endmacro(_eigen3_check_version)
-+
-+if (EIGEN3_INCLUDE_DIR)
-+
-+  # in cache already
-+  _eigen3_check_version()
-+  set(EIGEN3_FOUND ${EIGEN3_VERSION_OK})
-+
-+else (EIGEN3_INCLUDE_DIR)
-+
-+  find_path(EIGEN3_INCLUDE_DIR NAMES signature_of_eigen3_matrix_library
-+      PATHS
-+      ${CMAKE_INSTALL_PREFIX}/include
-+      ${KDE4_INCLUDE_DIR}
-+      PATH_SUFFIXES eigen3 eigen
-+    )
-+
-+  if(EIGEN3_INCLUDE_DIR)
-+    _eigen3_check_version()
-+  endif(EIGEN3_INCLUDE_DIR)
-+
-+  include(FindPackageHandleStandardArgs)
-+  find_package_handle_standard_args(Eigen3 DEFAULT_MSG EIGEN3_INCLUDE_DIR EIGEN3_VERSION_OK)
-+
-+  mark_as_advanced(EIGEN3_INCLUDE_DIR)
-+
-+endif(EIGEN3_INCLUDE_DIR)
-+
+diff --git a/cmake/custom/FindEigen3.cmake b/cmake/custom/hide_FindEigen3.cmake
+similarity index 100%
+rename from cmake/custom/FindEigen3.cmake
+rename to cmake/custom/hide_FindEigen3.cmake
 diff --git a/cmake/custom/pcmsolver.cmake b/cmake/custom/pcmsolver.cmake
-index 0e1a32a..9bfe9c5 100644
+index 0e1a32a3..9bfe9c5e 100644
 --- a/cmake/custom/pcmsolver.cmake
 +++ b/cmake/custom/pcmsolver.cmake
 @@ -23,18 +23,18 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}
@@ -970,7 +802,7 @@ index 0e1a32a..9bfe9c5 100644
          --cmakeout ${CMAKE_CURRENT_BINARY_DIR}/metadata.cmake
          --headerout ${CMAKE_CURRENT_BINARY_DIR}/include/VersionInfo.hpp
 diff --git a/cmake/downloaded/autocmake_boost.cmake b/cmake/downloaded/autocmake_boost.cmake
-index cbfabfd..6d9c9c1 100644
+index cbfabfd1..6d9c9c19 100644
 --- a/cmake/downloaded/autocmake_boost.cmake
 +++ b/cmake/downloaded/autocmake_boost.cmake
 @@ -104,6 +104,7 @@ else()
@@ -982,7 +814,7 @@ index cbfabfd..6d9c9c1 100644
      if(NOT Boost_FOUND)
          set(BUILD_CUSTOM_BOOST TRUE)
 diff --git a/cmake/downloaded/boost_cleanup.cmake b/cmake/downloaded/boost_cleanup.cmake
-index bbe878f..264bafb 100644
+index bbe878f5..264bafba 100644
 --- a/cmake/downloaded/boost_cleanup.cmake
 +++ b/cmake/downloaded/boost_cleanup.cmake
 @@ -2,10 +2,20 @@
@@ -1009,7 +841,7 @@ index bbe878f..264bafb 100644
 +    COMMENT "Clean-up Boost")
 +endif()
 diff --git a/cmake/downloaded/boost_configure.cmake b/cmake/downloaded/boost_configure.cmake
-index fdbe01a..6339776 100644
+index fdbe01ae..63397768 100644
 --- a/cmake/downloaded/boost_configure.cmake
 +++ b/cmake/downloaded/boost_configure.cmake
 @@ -7,7 +7,7 @@ add_custom_command(
@@ -1022,7 +854,7 @@ index fdbe01a..6339776 100644
      COMMAND ${CMAKE_COMMAND} -E touch ${CUSTOM_BOOST_LOCATION}/boost.configured
      WORKING_DIRECTORY ${BOOST_BUILD_DIR}
 diff --git a/setup.py b/setup.py
-index 2c30358..3b00e99 100755
+index 2c303589..3b00e99f 100755
 --- a/setup.py
 +++ b/setup.py
 @@ -29,7 +29,7 @@ Options:
@@ -1044,7 +876,7 @@ index 2c30358..3b00e99 100755
      command.append('-DBOOST_INCLUDEDIR="{0}"'.format(arguments['--boost-headers']))
      command.append('-DBOOST_LIBRARYDIR="{0}"'.format(arguments['--boost-libraries']))
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
-index 0c18230..06f6560 100644
+index 0c18230d..06f65600 100644
 --- a/src/CMakeLists.txt
 +++ b/src/CMakeLists.txt
 @@ -41,6 +41,11 @@ add_subdirectory(pedra)
@@ -1156,7 +988,7 @@ index 0c18230..06f6560 100644
        "PCMSolver::"
      DESTINATION
 diff --git a/src/bin/CMakeLists.txt b/src/bin/CMakeLists.txt
-index 458b360..b03df78 100644
+index 458b3607..b03df784 100644
 --- a/src/bin/CMakeLists.txt
 +++ b/src/bin/CMakeLists.txt
 @@ -4,7 +4,8 @@
@@ -1195,7 +1027,7 @@ index 458b360..b03df78 100644
    )
 -install(TARGETS run_pcm RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 diff --git a/src/cavity/ICavity.cpp b/src/cavity/ICavity.cpp
-index 9ac547f..05735bc 100644
+index 9ac547f5..05735bc4 100644
 --- a/src/cavity/ICavity.cpp
 +++ b/src/cavity/ICavity.cpp
 @@ -57,6 +57,7 @@ ICavity::ICavity(const Molecule & molec)
@@ -1207,7 +1039,7 @@ index 9ac547f..05735bc 100644
    unsigned int dim = static_cast<unsigned int>(nElements_);
    // Write the number of elements, it will be used to check sanity of the save/load
 diff --git a/tests/CMakeLists.txt b/tests/CMakeLists.txt
-index fe8da44..bc5046a 100644
+index fe8da44b..bc5046ae 100644
 --- a/tests/CMakeLists.txt
 +++ b/tests/CMakeLists.txt
 @@ -1,7 +1,7 @@
@@ -1220,7 +1052,7 @@ index fe8da44..bc5046a 100644
  target_include_directories(Catch INTERFACE ${CATCH_INCLUDE_DIR})
  
 diff --git a/tests/input/CMakeLists.txt b/tests/input/CMakeLists.txt
-index 73989d1..a6aac09 100644
+index 73989d15..a6aac092 100644
 --- a/tests/input/CMakeLists.txt
 +++ b/tests/input/CMakeLists.txt
 @@ -22,7 +22,7 @@ add_test(
@@ -1269,7 +1101,7 @@ index 73989d1..a6aac09 100644
    WORKING_DIRECTORY
      ${CMAKE_CURRENT_BINARY_DIR}
 diff --git a/tests/standalone/CMakeLists.txt b/tests/standalone/CMakeLists.txt
-index 1dfc780..ce89c26 100644
+index 1dfc7809..ce89c26d 100644
 --- a/tests/standalone/CMakeLists.txt
 +++ b/tests/standalone/CMakeLists.txt
 @@ -14,7 +14,7 @@ add_test(
@@ -1318,7 +1150,7 @@ index 1dfc780..ce89c26 100644
        --inp=biphenyl_gauss_failure.pcm
    WORKING_DIRECTORY
 diff --git a/tools/getkw.py b/tools/getkw.py
-index 4f07012..acb31b9 100644
+index 4f070122..acb31b94 100644
 --- a/tools/getkw.py
 +++ b/tools/getkw.py
 @@ -738,9 +738,9 @@ class GetkwParser:
@@ -1335,7 +1167,7 @@ index 4f07012..acb31b9 100644
          # Helper definitions
  
 diff --git a/tools/pcmparser.py b/tools/pcmparser.py
-index f9860ff..615a98a 100644
+index f9860ff9..615a98ac 100644
 --- a/tools/pcmparser.py
 +++ b/tools/pcmparser.py
 @@ -44,7 +44,6 @@ import os
@@ -1385,7 +1217,7 @@ index f9860ff..615a98a 100644
          sys.exit(1)
  
 diff --git a/tools/pyparsing.py b/tools/pyparsing.py
-index a3006c1..b0161c1 100644
+index a3006c10..b0161c1b 100644
 --- a/tools/pyparsing.py
 +++ b/tools/pyparsing.py
 @@ -795,7 +795,7 @@ class ParseResults(object):
@@ -1425,7 +1257,7 @@ index a3006c1..b0161c1 100644
      elif isinstance(strs, _generatorType):
          symbols = list(strs)
 diff --git a/tools/versioner.py b/tools/versioner.py
-index 6fb7892..03ad0b0 100644
+index 6fb78924..03ad0b09 100644
 --- a/tools/versioner.py
 +++ b/tools/versioner.py
 @@ -1,17 +1,30 @@
@@ -1436,27 +1268,27 @@ index 6fb7892..03ad0b0 100644
  #
 -#   versioner.py: defines look-ahead auto-versioning from metadata.py
 +# Psi4: an open-source quantum chemistry software package
-+#
-+# Copyright (c) 2007-2022 The Psi4 Developers.
-+#
-+# The copyrights for code used from other parties are included in
-+# the corresponding files.
  #
 -#   Copyright (c) 2017 The Psi4 Developers
-+# This file is part of PCMSolver.
++# Copyright (c) 2007-2022 The Psi4 Developers.
  #
 -#   All rights reserved. Use of this source code is governed by a
 -#   BSD-style license that can be found in the LICENSE file.
++# The copyrights for code used from other parties are included in
++# the corresponding files.
+ #
+-# @END LICENSE
++# This file is part of PCMSolver.
+ #
 +# Psi4 is free software; you can redistribute it and/or modify
 +# it under the terms of the GNU Lesser General Public License as published by
 +# the Free Software Foundation, version 3.
- #
--# @END LICENSE
++#
 +# Psi4 is distributed in the hope that it will be useful,
 +# but WITHOUT ANY WARRANTY; without even the implied warranty of
 +# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 +# GNU Lesser General Public License for more details.
- #
++#
 +# You should have received a copy of the GNU Lesser General Public License along
 +# with Psi4; if not, write to the Free Software Foundation, Inc.,
 +# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -1474,6 +1306,3 @@ index 6fb7892..03ad0b0 100644
  """
  
      with open(os.path.abspath(outfile), 'w') as handle:
--- 
-1.8.3.1
-

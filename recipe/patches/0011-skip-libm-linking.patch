@@ -1,0 +1,51 @@
+From 4bdb27b70440df894a43c8f5bab26ee301e12f68 Mon Sep 17 00:00:00 2001
+From: "Lori A. Burns" <lori.burns@gmail.com>
+Date: Sun, 6 Apr 2025 03:04:17 -0400
+Subject: [PATCH 11/11] skip libm linking
+
+---
+ api/pcmsolver.f90           | 2 +-
+ tests/C_host/CMakeLists.txt | 8 ++++----
+ 2 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/api/pcmsolver.f90 b/api/pcmsolver.f90
+index 29581f78..89681661 100644
+--- a/api/pcmsolver.f90
++++ b/api/pcmsolver.f90
+@@ -254,7 +254,7 @@ contains
+   ! \return array_c Null-terminated C string in a character array.
+   pure function pcmsolver_fstring_to_carray(string_f03) result(array_c)
+     character(len=*), intent(in) :: string_f03
+-    character(kind=c_char, len=1) :: array_c(len(string_f03)+1)
++    character(kind=c_char, len=1) :: array_c(len(string_f03)+10)
+ 
+     integer :: i
+ 
+diff --git a/tests/C_host/CMakeLists.txt b/tests/C_host/CMakeLists.txt
+index 2c8ad55a..560832c7 100644
+--- a/tests/C_host/CMakeLists.txt
++++ b/tests/C_host/CMakeLists.txt
+@@ -4,9 +4,9 @@ target_include_directories(C_host
+     ${PROJECT_SOURCE_DIR}/tests/C_host
+   )
+ target_link_libraries(C_host PCMSolver)
+-#if (NOT WIN32)
++if (NOT WIN32)
+ target_link_libraries(C_host m)
+-#endif()
++endif()
+ set_target_properties(C_host
+   PROPERTIES
+     LINKER_LANGUAGE C
+@@ -30,9 +30,9 @@ target_include_directories(fail-C_host
+     ${PROJECT_SOURCE_DIR}/tests/C_host
+   )
+ target_link_libraries(fail-C_host PCMSolver)
+-#if (NOT WIN32)
++if (NOT WIN32)
+ target_link_libraries(fail-C_host m)
+-#endif()
++endif()
+ set_target_properties(fail-C_host
+   PROPERTIES
+     LINKER_LANGUAGE C
