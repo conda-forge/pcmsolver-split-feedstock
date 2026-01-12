@@ -161,7 +161,6 @@ about:
   license_file:
     - LICENSE
     - THIRD-PARTY-LICENSES
-  license_family: LGPL
   summary: "R. Di Remigio & L. Frediani's Polarizable Continuum Model (PCM)"
 
 extra:
