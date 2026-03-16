@@ -1,7 +1,7 @@
 {% set name = "PCMSolver" %}
 {% set version = "1.2.3" %}
 {% set sha256 = "d1ef6bdc268a2e719b36c85125c3543df7a26e1a738daf4483f4ded0c76f5b60" %}
-{% set build = 15 %}
+{% set build = 16 %}
 
 package:
   name: {{ name|lower }}-split
@@ -11,34 +11,34 @@ source:
   url: https://github.com/{{ name }}/{{ name|lower }}/archive/v{{ version }}.tar.gz
   patches:
     # 0004 and 0005 introduced at build=10
-    - 0001-update-cmake-adapt-for-win-add-licenses.patch
-    - 0002-final-touches.patch
-    - 0003-likely-catch-fix-for-osx_arm64.patch
-    - 0004-fix-regex-warnings.patch
-    - 0005-posdef-error-into-warning.patch
-    - 0006-cpp-std-11-into-14.patch
-    - 0007-gauss-error-into-warning.patch
-    - 0008-win-path-re-fixes.patch
+    - patches/0001-update-cmake-adapt-for-win-add-licenses.patch
+    - patches/0002-final-touches.patch
+    - patches/0003-likely-catch-fix-for-osx_arm64.patch
+    - patches/0004-fix-regex-warnings.patch
+    - patches/0005-posdef-error-into-warning.patch
+    - patches/0006-cpp-std-11-into-14.patch
+    - patches/0007-gauss-error-into-warning.patch
+    - patches/0008-win-path-regex-fixes.patch
+    - patches/0009-avoid-multiple-rules-generate-ninja.patch
+    - patches/0010-avoid-headers-in-windows.patch
+    - patches/0011-skip-libm-linking.patch
   sha256: {{ sha256 }}
 
 build:
   number: {{ build }}
   # Only build for one python version because python module is repackaged as noarch
-  skip: True                              # [py != 312]
+  skip: true  # [py != 312]
 
 requirements:
   build:
     - python                              # [build_platform != target_platform]
     - cross-python_{{ target_platform }}  # [build_platform != target_platform]
-    - {{ compiler('c') }}                 # [unix]
-    - {{ stdlib("c") }}                   # [unix]
-    - {{ compiler('cxx') }}               # [unix]
-    - {{ compiler('fortran') }}           # [unix]
-    - {{ stdlib('m2w64_c') }}             # [win]
-    - {{ compiler('m2w64_c') }}           # [win]
-    - {{ compiler('m2w64_cxx') }}         # [win]
-    - {{ compiler('m2w64_fortran') }}     # [win]
+    - {{ stdlib("c") }}
+    - {{ compiler("c") }}
+    - {{ compiler("cxx") }}
+    - {{ compiler("fortran") }}
     - cmake
+    - make                                # [unix]
     - ninja
   host:
     - libboost-devel
@@ -59,9 +59,9 @@ outputs:
         - {{ pin_subpackage('libpcm', max_pin='x.x.x') }}
     requirements:
       host:
-        - python
+        - python {{ python_min }}
       run:
-        - python
+        - python >={{ python_min }}
         - {{ pin_subpackage('libpcm', max_pin='x.x.x') }}
     files:
       - bin/*.py                                                       # [unix]
@@ -69,6 +69,8 @@ outputs:
       - Library/bin/*.py                                               # [win]
       - Lib/site-packages/pcmsolver                                    # [win]
     test:
+      requires:
+        - python {{ python_min }}
       imports:
         - pcmsolver
       files:
@@ -96,6 +98,7 @@ outputs:
         # Inspect linkage
         - ldd -v $PREFIX/lib/libpcm$SHLIB_EXT                          # [linux and build_platform == target_platform]
         - otool -L $PREFIX/lib/libpcm$SHLIB_EXT                        # [osx]
+        - '%OBJDUMP% -p %PREFIX%\\Library\\bin\\libpcm.dll | findstr /i "dll"'  # [win]
         # Actually test
         - python $PREFIX/bin/go_pcm.py --inp molecule.inp --exe $PREFIX/bin  # [unix]
         - python %PREFIX%\\Library\\bin\\go_pcm.py --inp molecule.inp --exe %PREFIX%\\Library\\bin  # [win]
@@ -108,14 +111,10 @@ outputs:
         - {{ pin_subpackage('libpcm', max_pin='x.x.x') }}
     requirements:
       build:
-        - {{ stdlib("c") }}                # [unix]
-        - {{ compiler('c') }}              # [unix]
-        - {{ compiler('cxx') }}            # [unix]
-        - {{ compiler('fortran') }}        # [unix]
-        - {{ stdlib("m2w64_c") }}          # [win]
-        - {{ compiler('m2w64_c') }}        # [win]
-        - {{ compiler('m2w64_cxx') }}      # [win]
-        - {{ compiler('m2w64_fortran') }}  # [win]
+        - {{ stdlib("c") }}
+        - {{ compiler("c") }}
+        - {{ compiler("cxx") }}
+        - {{ compiler("fortran") }}
       host:
         - libboost-headers
         - eigen
@@ -134,11 +133,11 @@ outputs:
       commands:
         # Verify library
         - test -L $PREFIX/lib/libpcm$SHLIB_EXT                         # [unix]
-        - test ! -f $PREFIX/lib/libpcm.a                               # [unix]
+        - test ! -f $PREFIX/lib/libpcmstat.a                           # [unix]
         - if not exist %PREFIX%\\Library\\lib\\libpcm.dll.a exit 1     # [win]   # gnu import lib
         - if not exist %PREFIX%\\Library\\lib\\libpcm.lib exit 1       # [win]   # ms import lib
         - if not exist %PREFIX%\\Library\\bin\\libpcm.dll exit 1       # [win]   # gnu/ms dyn lib
-        - if exist %PREFIX%\\Library\\lib\\libpcm.a exit 1             # [win]   # gnu static lib removed
+        - if exist %PREFIX%\\Library\\lib\\libstatpcm.a exit 1         # [win]   # gnu static lib removed
         # Verify executable
         - test -f $PREFIX/bin/run_pcm                                  # [unix]
         - if not exist %PREFIX%\\Library\\bin\\run_pcm.exe exit 1      # [win]
@@ -150,6 +149,7 @@ outputs:
         # Inspect linkage
         - ldd -v $PREFIX/lib/libpcm$SHLIB_EXT                          # [linux and build_platform == target_platform]
         - otool -L $PREFIX/lib/libpcm$SHLIB_EXT                        # [osx]
+        - '%OBJDUMP% -p %PREFIX%\\Library\\bin\\libpcm.dll | findstr /i "dll"'  # [win]
 
 about:
   home: https://github.com/PCMSolver/pcmsolver

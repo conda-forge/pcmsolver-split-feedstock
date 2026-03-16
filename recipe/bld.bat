@@ -1,4 +1,14 @@
 @ECHO ON
+SetLocal EnableDelayedExpansion
+
+:: flang still uses a temporary name not recognized by CMake
+copy %BUILD_PREFIX%\Library\bin\flang-new.exe %BUILD_PREFIX%\Library\bin\flang.exe
+
+:: millions of lines of warnings with clang-19
+set "CFLAGS=%CFLAGS% -w /EHsc"
+set "CXXFLAGS=%CXXFLAGS% -w /EHsc"
+
+:: -std=legacy" yields "error: Only -std=f2018 is allowed currently"
 
 cmake %CMAKE_ARGS% ^
   -G "Ninja" ^
@@ -6,8 +16,11 @@ cmake %CMAKE_ARGS% ^
   -B build ^
   -D CMAKE_INSTALL_PREFIX="%LIBRARY_PREFIX%" ^
   -D CMAKE_BUILD_TYPE=Release ^
+  -D CMAKE_C_COMPILER="clang-cl" ^
   -D CMAKE_C_FLAGS="%CFLAGS%" ^
+  -D CMAKE_CXX_COMPILER="clang-cl" ^
   -D CMAKE_CXX_FLAGS="%CXXFLAGS%" ^
+  -D CMAKE_Fortran_COMPILER=flang ^
   -D CMAKE_Fortran_FLAGS="%FFLAGS%" ^
   -D CMAKE_INSTALL_LIBDIR="lib" ^
   -D CMAKE_INSTALL_INCLUDEDIR="include" ^
@@ -17,7 +30,6 @@ cmake %CMAKE_ARGS% ^
   -D Python_EXECUTABLE="%PYTHON%" ^
   -D EIGEN3_ROOT="%LIBRARY_PREFIX%" ^
   -D CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON ^
-  -D CMAKE_GNUtoMS=ON ^
   -D BUILD_TESTING=OFF ^
   -D CMAKE_PREFIX_PATH="%LIBRARY_PREFIX%" ^
   -D ENABLE_OPENMP=OFF ^
@@ -42,9 +54,11 @@ if errorlevel 1 exit 1
 :: Building both static & shared (instead of SHARED_LIBRARY_ONLY) since the tests
 ::   only build with static lib. Don't want to distribute static, though, so
 ::   removing all the static lib stuff immediately after install.
+dir %LIBRARY_PREFIX%\\bin
+dir %LIBRARY_PREFIX%\\lib
 del %LIBRARY_PREFIX%\\share\\cmake\\PCMSolver\\PCMSolverTargets-static-release.cmake
 del %LIBRARY_PREFIX%\\share\\cmake\\PCMSolver\\PCMSolverTargets-static.cmake
-del %LIBRARY_PREFIX%\\lib\\libpcm.a
+::del %LIBRARY_PREFIX%\\lib\\libpcm.a
 
 cd build
 ctest --rerun-failed --output-on-failure -E "SPD|gauss-failure|green_spherical_diffuse"
