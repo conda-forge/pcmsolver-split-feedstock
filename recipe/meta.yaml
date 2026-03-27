@@ -24,7 +24,7 @@ source:
 build:
   number: {{ build }}
   # Only build for one python version because python module is repackaged as noarch
-  skip: True                              # [py != 312]
+  skip: true                              # [py != 313]
 
 requirements:
   build:
@@ -65,7 +65,7 @@ outputs:
         - {{ pin_subpackage('libpcm', max_pin='x.x.x') }}
     files:
       - bin/*.py                                                       # [unix]
-      - lib/python3.12/site-packages/pcmsolver                         # [unix]
+      - lib/python3.13/site-packages/pcmsolver                         # [unix]
       - Library/bin/*.py                                               # [win]
       - Lib/site-packages/pcmsolver                                    # [win]
     test:
