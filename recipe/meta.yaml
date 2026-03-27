@@ -19,6 +19,7 @@ source:
     - 0006-cpp-std-11-into-14.patch
     - 0007-gauss-error-into-warning.patch
     - 0008-win-path-re-fixes.patch
+    - 0009-old-eigen-and-catch.patch
   sha256: {{ sha256 }}
 
 build:

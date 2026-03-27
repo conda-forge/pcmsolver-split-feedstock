@@ -2,13 +2,15 @@
 
 set -ex
 
+rm -rf external/eigen3
+
 ARCH_ARGS=""
 if [ "$(uname)" == "Darwin" ]; then
     #CXXFLAGS="-D_LIBCPP_ENABLE_CXX17_REMOVED_UNARY_BINARY_FUNCTION=1 ${CXXFLAGS}"
     CXXFLAGS="${CXXFLAGS} -std=c++14"
 fi
 
-${BUILD_PREFIX}/bin/cmake ${CMAKE_ARGS} ${ARCH_ARGS} \
+cmake ${CMAKE_ARGS} ${ARCH_ARGS} \
   -G "Ninja" \
   -S ${SRC_DIR} \
   -B build \
@@ -23,7 +25,7 @@ ${BUILD_PREFIX}/bin/cmake ${CMAKE_ARGS} ${ARCH_ARGS} \
   -D CMAKE_INSTALL_LIBDIR=lib \
   -D PYMOD_INSTALL_LIBDIR="/python${PY_VER}/site-packages" \
   -D Python_EXECUTABLE=${PYTHON} \
-  -D EIGEN3_ROOT=${PREFIX} \
+  -D Eigen3_ROOT=${PREFIX} \
   -D ENABLE_OPENMP=OFF \
   -D ENABLE_GENERIC=OFF \
   -D ENABLE_TESTS=ON \
