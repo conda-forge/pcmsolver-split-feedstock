@@ -1,61 +1,40 @@
-From a064e0cd4a2bdad030d5665956bd5747dab0f28c Mon Sep 17 00:00:00 2001
+From c2b304d9e0ece1c92ee12a65954914a60c80a5bc Mon Sep 17 00:00:00 2001
 From: Lori Burns <lori.burns@gmail.com>
-Date: Fri, 27 Mar 2026 03:38:54 -0400
-Subject: [PATCH] eigen and catch2
+Date: Fri, 27 Mar 2026 04:11:18 -0400
+Subject: [PATCH 1/1] old-eigen-detection
 
 ---
- CMakeLists.txt                        |  1 +
- cmake/custom/compilers/CXXFlags.cmake |  4 ++--
- cmake/custom/eigen.cmake              | 22 +++++++++++-----------
- external/Catch/catch.hpp              |  6 ++++--
- 4 files changed, 18 insertions(+), 15 deletions(-)
+ CMakeLists.txt           |  3 ++-
+ cmake/custom/eigen.cmake | 13 +------------
+ 2 files changed, 3 insertions(+), 13 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index a7c5673a..811e4339 100644
+index a7c5673a..082e01ac 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -4,6 +4,7 @@
+@@ -2,8 +2,9 @@
+ # Copyright (c) 2015-2018 by Radovan Bast, Roberto Di Remigio, Jonas Juselius, and contributors.
+ 
  # set minimum cmake version
- cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
+-cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
++cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
  
 +cmake_policy(SET CMP0074 NEW)
  # project name
  if (WIN32)
      project(PCMSolver LANGUAGES CXX C) # Fortran)
-diff --git a/cmake/custom/compilers/CXXFlags.cmake b/cmake/custom/compilers/CXXFlags.cmake
-index 43db39cf..db57072a 100644
---- a/cmake/custom/compilers/CXXFlags.cmake
-+++ b/cmake/custom/compilers/CXXFlags.cmake
-@@ -7,12 +7,12 @@ if(ENABLE_CXX11_SUPPORT)
-     RESULT cxx11_flag
-     LANGUAGE CXX
-     #REQUIRED
--    FLAGS "-std=c++11;/std:c++11;-std=c++0x;--c++11;--c++0x"
-+    FLAGS "-std=c++14;/std:c++14"
-     )
-   if(cxx11_flag)
-     set(CXX_STANDARD_FLAG ${cxx11_flag})
-     set(HAS_CXX11 TRUE)
--    message(STATUS "Using C++11 standard")
-+    message(STATUS "Using C++14 standard")
-   else()
-     set(CXX_STANDARD_FLAG "-std=gnu++98")
-     set(HAS_CXX11 FALSE)
 diff --git a/cmake/custom/eigen.cmake b/cmake/custom/eigen.cmake
-index bd635df0..f43658b0 100644
+index bd635df0..f3e8d1e0 100644
 --- a/cmake/custom/eigen.cmake
 +++ b/cmake/custom/eigen.cmake
-@@ -10,16 +10,16 @@
+@@ -10,16 +10,5 @@
  #   docopt: "--eigen=<EIGEN3_ROOT> Root directory for Eigen3 [default: '']."
  #   define: "'-DEIGEN3_ROOT=\"{0}\"'.format(arguments['--eigen'])"
  
 -if(EIGEN3_ROOT)
 -  set(EIGEN3_INCLUDE_DIR ${EIGEN3_ROOT}/include)
 -  find_package(Eigen3 3.3.0)
-+#if(Eigen3_ROOT)
-+#  set(EIGEN3_INCLUDE_DIR ${EIGEN3_ROOT}/include)
-+  find_package(Eigen3)
-   message(STATUS "Eigen " ${EIGEN3_VERSION} " is located here: " ${EIGEN3_INCLUDE_DIR})
+-  message(STATUS "Eigen " ${EIGEN3_VERSION} " is located here: " ${EIGEN3_INCLUDE_DIR})
 -  if(NOT EIGEN3_FOUND)
 -    set(EIGEN3_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/external/eigen3/include/eigen3)
 -    message(STATUS "Eigen 3.3.2 is located here: " ${EIGEN3_INCLUDE_DIR})
@@ -64,32 +43,8 @@ index bd635df0..f43658b0 100644
 -  set(EIGEN3_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/external/eigen3/include/eigen3)
 -  message(STATUS "Eigen 3.3.2 is located here: " ${EIGEN3_INCLUDE_DIR})
 -endif()
-+#  if(NOT EIGEN3_FOUND)
-+#    set(EIGEN3_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/external/eigen3/include/eigen3)
-+#    message(STATUS "Eigen 3.3.2 is located here: " ${EIGEN3_INCLUDE_DIR})
-+#  endif()
-+#else()
-+#  set(EIGEN3_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/external/eigen3/include/eigen3)
-+#  message(STATUS "Eigen 3.3.2 is located here: " ${EIGEN3_INCLUDE_DIR})
-+#endif()
++find_package(Eigen3)
  include_directories(SYSTEM ${EIGEN3_INCLUDE_DIR})
-diff --git a/external/Catch/catch.hpp b/external/Catch/catch.hpp
-index 849c53c1..b5099474 100644
---- a/external/Catch/catch.hpp
-+++ b/external/Catch/catch.hpp
-@@ -2056,8 +2056,10 @@ namespace Catch{
-         #define CATCH_TRAP() \
-                 __asm__("li r0, 20\nsc\nnop\nli r0, 37\nli r4, 2\nsc\nnop\n" \
-                 : : : "memory","r0","r3","r4" ) /* NOLINT */
--    #else
--        #define CATCH_TRAP() __asm__("int $3\n" : : /* NOLINT */ )
-+    #elif defined(__i386__) || defined(__x86_64__)
-+        #define CATCH_TRAP() __asm__("int $3\n" : : ) /* NOLINT */
-+    #elif defined(__aarch64__)
-+        #define CATCH_TRAP()  __asm__(".inst 0xd4200000")
-     #endif
- 
- #elif defined(CATCH_PLATFORM_LINUX)
 -- 
 2.39.2 (Apple Git-143)
 
