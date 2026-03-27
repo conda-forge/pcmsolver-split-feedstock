@@ -1,0 +1,1145 @@
+From ec877ec7e363195422e7f8cc2675e822949a031c Mon Sep 17 00:00:00 2001
+From: "Lori A. Burns" <lori.burns7@gmail.com>
+Date: Fri, 27 Mar 2026 13:26:21 -0400
+Subject: [PATCH 1/2] external and modernize Catch2
+
+---
+ CMakeLists.txt                                             | 1 +
+ cmake/custom/catch.cmake                                   | 5 +++++
+ tests/CMakeLists.txt                                       | 2 +-
+ tests/bi_operators/bi_operators_collocation.cpp            | 3 ++-
+ tests/bi_operators/bi_operators_purisima.cpp               | 3 ++-
+ tests/cpcm/cpcm_gepol-C2H4_D2h.cpp                         | 3 ++-
+ tests/cpcm/cpcm_gepol-H2O.cpp                              | 3 ++-
+ tests/cpcm/cpcm_gepol-NH3.cpp                              | 3 ++-
+ tests/cpcm/cpcm_gepol-NH3_from-file.cpp                    | 3 ++-
+ tests/cpcm/cpcm_gepol-point.cpp                            | 3 ++-
+ tests/cpcm/cpcm_gepol-point_from-file.cpp                  | 3 ++-
+ tests/cpcm/cpcm_symmetry.cpp                               | 3 ++-
+ tests/dielectric_profile/one_layer.cpp                     | 3 ++-
+ tests/gepol/gepol_C2H4_D2h.cpp                             | 3 ++-
+ tests/gepol/gepol_C6H6.cpp                                 | 3 ++-
+ tests/gepol/gepol_CH3+_Cs.cpp                              | 3 ++-
+ tests/gepol/gepol_CO2_symmetry.cpp                         | 3 ++-
+ tests/gepol/gepol_H3+.cpp                                  | 3 ++-
+ tests/gepol/gepol_H3+_C2v.cpp                              | 3 ++-
+ tests/gepol/gepol_H3+_from-file.cpp                        | 3 ++-
+ tests/gepol/gepol_NH3.cpp                                  | 4 +++-
+ tests/gepol/gepol_NH3_from-file.cpp                        | 3 ++-
+ tests/gepol/gepol_point.cpp                                | 3 ++-
+ tests/gepol/gepol_point_from-file.cpp                      | 3 ++-
+ tests/gepol/gepol_point_symmetry.cpp                       | 3 ++-
+ tests/green/CMakeLists.txt                                 | 6 +++---
+ tests/green/green_anisotropic_liquid.cpp                   | 3 ++-
+ tests/green/green_ionic_liquid.cpp                         | 3 ++-
+ tests/green/green_spherical_diffuse.cpp                    | 3 ++-
+ tests/green/green_spherical_sharp.cpp                      | 3 ++-
+ tests/green/green_uniform_dielectric.cpp                   | 3 ++-
+ tests/green/green_vacuum.cpp                               | 3 ++-
+ tests/iefpcm/iefpcm_anisotropic-gepol-point.cpp            | 3 ++-
+ tests/iefpcm/iefpcm_anisotropic-symmetry.cpp               | 3 ++-
+ tests/iefpcm/iefpcm_erf-spherical-diffuse-gepol-point.cpp  | 3 ++-
+ tests/iefpcm/iefpcm_gepol-C2H4_D2h.cpp                     | 3 ++-
+ tests/iefpcm/iefpcm_gepol-NH3.cpp                          | 3 ++-
+ tests/iefpcm/iefpcm_gepol-NH3_from-file.cpp                | 3 ++-
+ tests/iefpcm/iefpcm_gepol-point.cpp                        | 3 ++-
+ tests/iefpcm/iefpcm_gepol-point_from-file.cpp              | 3 ++-
+ tests/iefpcm/iefpcm_log-spherical-diffuse-gepol-point.cpp  | 3 ++-
+ tests/iefpcm/iefpcm_sharp-gepol-point.cpp                  | 3 ++-
+ tests/iefpcm/iefpcm_symmetry.cpp                           | 3 ++-
+ tests/iefpcm/iefpcm_tanh-spherical-diffuse-gepol-point.cpp | 3 ++-
+ tests/input/input_cpcm.cpp                                 | 3 ++-
+ tests/input/input_diffuse.cpp                              | 3 ++-
+ tests/input/input_multipoles.cpp                           | 3 ++-
+ tests/input/input_restart.cpp                              | 3 ++-
+ tests/input/input_sharp.cpp                                | 3 ++-
+ tests/numerical_quadrature/numerical_quadrature.cpp        | 3 ++-
+ tests/unit_tests.cpp                                       | 2 +-
+ tests/utils/utils_dipolar-potential.cpp                    | 3 ++-
+ tests/utils/utils_newton-potential.cpp                     | 3 ++-
+ 53 files changed, 108 insertions(+), 53 deletions(-)
+ create mode 100644 cmake/custom/catch.cmake
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 57dadb85..946101cc 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -82,6 +82,7 @@ include(api)
+ include(autocmake_boost)
+ include(static_library)
+ include(eigen)
++include(catch)
+ include(libtaylor)
+ include(zlib)
+ include(autocmake_src)
+diff --git a/cmake/custom/catch.cmake b/cmake/custom/catch.cmake
+new file mode 100644
+index 00000000..93db565d
+--- /dev/null
++++ b/cmake/custom/catch.cmake
+@@ -0,0 +1,5 @@
++find_package(Catch2 REQUIRED)
++get_target_property(CATCH2_INCLUDE_DIR Catch2::Catch2 INTERFACE_INCLUDE_DIRECTORIES)
++message(STATUS "Catch2 (found=${Catch2_FOUND}) " ${Catch2_VERSION} " is located here: " ${CATCH2_INCLUDE_DIR})
++include_directories(SYSTEM ${CATCH2_INCLUDE_DIR})
++
+diff --git a/tests/CMakeLists.txt b/tests/CMakeLists.txt
+index bc5046ae..3728211d 100644
+--- a/tests/CMakeLists.txt
++++ b/tests/CMakeLists.txt
+@@ -32,7 +32,7 @@ add_subdirectory(benchmark)
+ target_link_libraries(unit_tests
+   PRIVATE
+     pcm-static
+-    Catch
++    Catch2::Catch2
+   )
+ 
+ add_subdirectory(C_host)
+diff --git a/tests/bi_operators/bi_operators_collocation.cpp b/tests/bi_operators/bi_operators_collocation.cpp
+index 8bdca2a1..e2325f63 100644
+--- a/tests/bi_operators/bi_operators_collocation.cpp
++++ b/tests/bi_operators/bi_operators_collocation.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include "catch.hpp"
++#include <catch2/catch_all.hpp>
+ 
+ #include <cmath>
+ #include <iomanip>
+@@ -42,6 +42,7 @@
+ #include "green/dielectric_profile/OneLayerTanh.hpp"
+ #include "utils/MathUtils.hpp"
+ 
++using namespace Catch;
+ using namespace pcm;
+ using bi_operators::Collocation;
+ using cavity::GePolCavity;
+diff --git a/tests/bi_operators/bi_operators_purisima.cpp b/tests/bi_operators/bi_operators_purisima.cpp
+index 1750c210..5308c6a0 100644
+--- a/tests/bi_operators/bi_operators_purisima.cpp
++++ b/tests/bi_operators/bi_operators_purisima.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include "catch.hpp"
++#include <catch2/catch_all.hpp>
+ 
+ #include <cmath>
+ #include <iomanip>
+@@ -38,6 +38,7 @@
+ #include "green/Vacuum.hpp"
+ #include "utils/MathUtils.hpp"
+ 
++using namespace Catch;
+ using namespace pcm;
+ using bi_operators::Purisima;
+ using cavity::GePolCavity;
+diff --git a/tests/cpcm/cpcm_gepol-C2H4_D2h.cpp b/tests/cpcm/cpcm_gepol-C2H4_D2h.cpp
+index da000228..cad8ce8a 100644
+--- a/tests/cpcm/cpcm_gepol-C2H4_D2h.cpp
++++ b/tests/cpcm/cpcm_gepol-C2H4_D2h.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include <catch.hpp>
++#include <catch2/catch_all.hpp>
+ 
+ #include <cmath>
+ #include <vector>
+@@ -38,6 +38,7 @@
+ #include "utils/MathUtils.hpp"
+ #include "utils/Molecule.hpp"
+ 
++using namespace Catch;
+ using namespace pcm;
+ using bi_operators::Collocation;
+ using cavity::GePolCavity;
+diff --git a/tests/cpcm/cpcm_gepol-H2O.cpp b/tests/cpcm/cpcm_gepol-H2O.cpp
+index 213caf8b..11eabd13 100644
+--- a/tests/cpcm/cpcm_gepol-H2O.cpp
++++ b/tests/cpcm/cpcm_gepol-H2O.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include "catch.hpp"
++#include <catch2/catch_all.hpp>
+ 
+ #include <iostream>
+ 
+@@ -38,6 +38,7 @@
+ #include "utils/Molecule.hpp"
+ #include "utils/Symmetry.hpp"
+ 
++using namespace Catch;
+ using namespace pcm;
+ using bi_operators::Collocation;
+ using cavity::GePolCavity;
+diff --git a/tests/cpcm/cpcm_gepol-NH3.cpp b/tests/cpcm/cpcm_gepol-NH3.cpp
+index 81b47cf7..0fb605d5 100644
+--- a/tests/cpcm/cpcm_gepol-NH3.cpp
++++ b/tests/cpcm/cpcm_gepol-NH3.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include "catch.hpp"
++#include <catch2/catch_all.hpp>
+ 
+ #include <iostream>
+ 
+@@ -38,6 +38,7 @@
+ #include "utils/Molecule.hpp"
+ #include "utils/Symmetry.hpp"
+ 
++using namespace Catch;
+ using namespace pcm;
+ using bi_operators::Collocation;
+ using cavity::GePolCavity;
+diff --git a/tests/cpcm/cpcm_gepol-NH3_from-file.cpp b/tests/cpcm/cpcm_gepol-NH3_from-file.cpp
+index be4e2102..28db4212 100644
+--- a/tests/cpcm/cpcm_gepol-NH3_from-file.cpp
++++ b/tests/cpcm/cpcm_gepol-NH3_from-file.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include "catch.hpp"
++#include <catch2/catch_all.hpp>
+ 
+ #include <iostream>
+ 
+@@ -34,6 +34,7 @@
+ #include "green/Vacuum.hpp"
+ #include "solver/CPCMSolver.hpp"
+ 
++using namespace Catch;
+ using namespace pcm;
+ using bi_operators::Collocation;
+ using cavity::GePolCavity;
+diff --git a/tests/cpcm/cpcm_gepol-point.cpp b/tests/cpcm/cpcm_gepol-point.cpp
+index a31f0667..f25684cf 100644
+--- a/tests/cpcm/cpcm_gepol-point.cpp
++++ b/tests/cpcm/cpcm_gepol-point.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include "catch.hpp"
++#include <catch2/catch_all.hpp>
+ 
+ #include <iostream>
+ 
+@@ -36,6 +36,7 @@
+ #include "solver/CPCMSolver.hpp"
+ #include "utils/MathUtils.hpp"
+ 
++using namespace Catch;
+ using namespace pcm;
+ using bi_operators::Collocation;
+ using cavity::GePolCavity;
+diff --git a/tests/cpcm/cpcm_gepol-point_from-file.cpp b/tests/cpcm/cpcm_gepol-point_from-file.cpp
+index 40141aad..2a636388 100644
+--- a/tests/cpcm/cpcm_gepol-point_from-file.cpp
++++ b/tests/cpcm/cpcm_gepol-point_from-file.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include "catch.hpp"
++#include <catch2/catch_all.hpp>
+ 
+ #include <iostream>
+ 
+@@ -34,6 +34,7 @@
+ #include "green/Vacuum.hpp"
+ #include "solver/CPCMSolver.hpp"
+ 
++using namespace Catch;
+ using namespace pcm;
+ using bi_operators::Collocation;
+ using cavity::GePolCavity;
+diff --git a/tests/cpcm/cpcm_symmetry.cpp b/tests/cpcm/cpcm_symmetry.cpp
+index 2786edc3..5a61d826 100644
+--- a/tests/cpcm/cpcm_symmetry.cpp
++++ b/tests/cpcm/cpcm_symmetry.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include "catch.hpp"
++#include <catch2/catch_all.hpp>
+ 
+ #include <iostream>
+ 
+@@ -35,6 +35,7 @@
+ #include "green/Vacuum.hpp"
+ #include "solver/CPCMSolver.hpp"
+ 
++using namespace Catch;
+ using namespace pcm;
+ using bi_operators::Collocation;
+ using cavity::GePolCavity;
+diff --git a/tests/dielectric_profile/one_layer.cpp b/tests/dielectric_profile/one_layer.cpp
+index e889088a..4fca1d5a 100644
+--- a/tests/dielectric_profile/one_layer.cpp
++++ b/tests/dielectric_profile/one_layer.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include "catch.hpp"
++#include <catch2/catch_all.hpp>
+ 
+ #include <cmath>
+ #include <cstdlib>
+@@ -47,6 +47,7 @@ double log_deriv(double point, double e1, double e2, double w, double c);
+ 
+ double distribution(double fMin, double fMax);
+ 
++using namespace Catch;
+ using namespace pcm::dielectric_profile;
+ 
+ SCENARIO("Diffuse permittivity single layers", "[dielectric_profile][one_layer]") {
+diff --git a/tests/gepol/gepol_C2H4_D2h.cpp b/tests/gepol/gepol_C2H4_D2h.cpp
+index 64bf77f4..734187ea 100644
+--- a/tests/gepol/gepol_C2H4_D2h.cpp
++++ b/tests/gepol/gepol_C2H4_D2h.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include <catch.hpp>
++#include <catch2/catch_all.hpp>
+ 
+ #include <cmath>
+ #include <vector>
+@@ -33,6 +33,7 @@
+ #include "utils/Molecule.hpp"
+ #include "utils/Symmetry.hpp"
+ 
++using namespace Catch;
+ using namespace pcm;
+ using cavity::GePolCavity;
+ 
+diff --git a/tests/gepol/gepol_C6H6.cpp b/tests/gepol/gepol_C6H6.cpp
+index 1b4a9ed9..6c617d9c 100644
+--- a/tests/gepol/gepol_C6H6.cpp
++++ b/tests/gepol/gepol_C6H6.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include <catch.hpp>
++#include <catch2/catch_all.hpp>
+ 
+ #include <cmath>
+ 
+@@ -32,6 +32,7 @@
+ #include "utils/Molecule.hpp"
+ #include "utils/Symmetry.hpp"
+ 
++using namespace Catch;
+ using namespace pcm;
+ using cavity::GePolCavity;
+ 
+diff --git a/tests/gepol/gepol_CH3+_Cs.cpp b/tests/gepol/gepol_CH3+_Cs.cpp
+index ef188db8..8f70afd6 100644
+--- a/tests/gepol/gepol_CH3+_Cs.cpp
++++ b/tests/gepol/gepol_CH3+_Cs.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include <catch.hpp>
++#include <catch2/catch_all.hpp>
+ 
+ #include <cmath>
+ 
+@@ -32,6 +32,7 @@
+ #include "utils/Molecule.hpp"
+ #include "utils/Symmetry.hpp"
+ 
++using namespace Catch;
+ using namespace pcm;
+ using cavity::GePolCavity;
+ 
+diff --git a/tests/gepol/gepol_CO2_symmetry.cpp b/tests/gepol/gepol_CO2_symmetry.cpp
+index 9878e36a..53aca4fb 100644
+--- a/tests/gepol/gepol_CO2_symmetry.cpp
++++ b/tests/gepol/gepol_CO2_symmetry.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include <catch.hpp>
++#include <catch2/catch_all.hpp>
+ 
+ #include <cmath>
+ 
+@@ -32,6 +32,7 @@
+ #include "utils/Molecule.hpp"
+ #include "utils/Symmetry.hpp"
+ 
++using namespace Catch;
+ using namespace pcm;
+ using cavity::GePolCavity;
+ 
+diff --git a/tests/gepol/gepol_H3+.cpp b/tests/gepol/gepol_H3+.cpp
+index a0298d68..61a08aaa 100644
+--- a/tests/gepol/gepol_H3+.cpp
++++ b/tests/gepol/gepol_H3+.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include <catch.hpp>
++#include <catch2/catch_all.hpp>
+ 
+ #include <cmath>
+ 
+@@ -32,6 +32,7 @@
+ #include "utils/Molecule.hpp"
+ #include "utils/Symmetry.hpp"
+ 
++using namespace Catch;
+ using namespace pcm;
+ using cavity::GePolCavity;
+ 
+diff --git a/tests/gepol/gepol_H3+_C2v.cpp b/tests/gepol/gepol_H3+_C2v.cpp
+index ebfa93b1..fd150ff7 100644
+--- a/tests/gepol/gepol_H3+_C2v.cpp
++++ b/tests/gepol/gepol_H3+_C2v.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include <catch.hpp>
++#include <catch2/catch_all.hpp>
+ 
+ #include <cmath>
+ 
+@@ -32,6 +32,7 @@
+ #include "utils/Molecule.hpp"
+ #include "utils/Symmetry.hpp"
+ 
++using namespace Catch;
+ using namespace pcm;
+ using cavity::GePolCavity;
+ 
+diff --git a/tests/gepol/gepol_H3+_from-file.cpp b/tests/gepol/gepol_H3+_from-file.cpp
+index d679860a..874e2761 100644
+--- a/tests/gepol/gepol_H3+_from-file.cpp
++++ b/tests/gepol/gepol_H3+_from-file.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include <catch.hpp>
++#include <catch2/catch_all.hpp>
+ 
+ #include <cmath>
+ #include <vector>
+@@ -30,6 +30,7 @@
+ 
+ #include "cavity/GePolCavity.hpp"
+ 
++using namespace Catch;
+ using namespace pcm;
+ using cavity::GePolCavity;
+ 
+diff --git a/tests/gepol/gepol_NH3.cpp b/tests/gepol/gepol_NH3.cpp
+index 9856d307..2480a887 100644
+--- a/tests/gepol/gepol_NH3.cpp
++++ b/tests/gepol/gepol_NH3.cpp
+@@ -21,8 +21,9 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include "catch.hpp"
++#include <catch2/catch_all.hpp>
+ 
++#include <iomanip>
+ #include <cmath>
+ #include <vector>
+ 
+@@ -34,6 +35,7 @@
+ #include "utils/Molecule.hpp"
+ #include "utils/Symmetry.hpp"
+ 
++using namespace Catch;
+ using namespace pcm;
+ using cavity::GePolCavity;
+ 
+diff --git a/tests/gepol/gepol_NH3_from-file.cpp b/tests/gepol/gepol_NH3_from-file.cpp
+index 54889fa7..d34a7cee 100644
+--- a/tests/gepol/gepol_NH3_from-file.cpp
++++ b/tests/gepol/gepol_NH3_from-file.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include <catch.hpp>
++#include <catch2/catch_all.hpp>
+ 
+ #include <cmath>
+ #include <vector>
+@@ -30,6 +30,7 @@
+ 
+ #include "cavity/GePolCavity.hpp"
+ 
++using namespace Catch;
+ using namespace pcm;
+ using cavity::GePolCavity;
+ 
+diff --git a/tests/gepol/gepol_point.cpp b/tests/gepol/gepol_point.cpp
+index d7135045..c427fcd5 100644
+--- a/tests/gepol/gepol_point.cpp
++++ b/tests/gepol/gepol_point.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include "catch.hpp"
++#include <catch2/catch_all.hpp>
+ 
+ #include <cmath>
+ #include <vector>
+@@ -31,6 +31,7 @@
+ #include "TestingMolecules.hpp"
+ #include "cavity/GePolCavity.hpp"
+ 
++using namespace Catch;
+ using namespace pcm;
+ using cavity::GePolCavity;
+ 
+diff --git a/tests/gepol/gepol_point_from-file.cpp b/tests/gepol/gepol_point_from-file.cpp
+index 0e48429e..be750fa2 100644
+--- a/tests/gepol/gepol_point_from-file.cpp
++++ b/tests/gepol/gepol_point_from-file.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include "catch.hpp"
++#include <catch2/catch_all.hpp>
+ 
+ #include <cmath>
+ #include <vector>
+@@ -30,6 +30,7 @@
+ 
+ #include "cavity/GePolCavity.hpp"
+ 
++using namespace Catch;
+ using namespace pcm;
+ using cavity::GePolCavity;
+ 
+diff --git a/tests/gepol/gepol_point_symmetry.cpp b/tests/gepol/gepol_point_symmetry.cpp
+index d1308bb5..79ed5785 100644
+--- a/tests/gepol/gepol_point_symmetry.cpp
++++ b/tests/gepol/gepol_point_symmetry.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include <catch.hpp>
++#include <catch2/catch_all.hpp>
+ 
+ #include <cmath>
+ #include <vector>
+@@ -31,6 +31,7 @@
+ #include "TestingMolecules.hpp"
+ #include "cavity/GePolCavity.hpp"
+ 
++using namespace Catch;
+ using namespace pcm;
+ using cavity::GePolCavity;
+ 
+diff --git a/tests/green/CMakeLists.txt b/tests/green/CMakeLists.txt
+index 326129aa..bda6503a 100644
+--- a/tests/green/CMakeLists.txt
++++ b/tests/green/CMakeLists.txt
+@@ -55,13 +55,13 @@ add_Catch_test(
+     green_anisotropic_liquid
+   )
+ 
+-# green_sharp_diffuse.cpp test
++# green_spherical_sharp.cpp test
+ add_Catch_test(
+   NAME
+-    green_sharp_diffuse
++    green_spherical_sharp
+   LABELS
+     green
+-    green_sharp_diffuse
++    green_spherical_sharp
+   COST
+     100.0
+   )
+diff --git a/tests/green/green_anisotropic_liquid.cpp b/tests/green/green_anisotropic_liquid.cpp
+index e01f0c25..599d8a38 100644
+--- a/tests/green/green_anisotropic_liquid.cpp
++++ b/tests/green/green_anisotropic_liquid.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include "catch.hpp"
++#include <catch2/catch_all.hpp>
+ 
+ #include <cmath>
+ #include <iostream>
+@@ -32,6 +32,7 @@
+ #include "green/AnisotropicLiquid.hpp"
+ #include "green/DerivativeTypes.hpp"
+ 
++using namespace Catch;
+ using namespace pcm;
+ using green::AnisotropicLiquid;
+ 
+diff --git a/tests/green/green_ionic_liquid.cpp b/tests/green/green_ionic_liquid.cpp
+index 6c10685d..f94dc25c 100644
+--- a/tests/green/green_ionic_liquid.cpp
++++ b/tests/green/green_ionic_liquid.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include "catch.hpp"
++#include <catch2/catch_all.hpp>
+ 
+ #include <cmath>
+ #include <iostream>
+@@ -32,6 +32,7 @@
+ #include "green/DerivativeTypes.hpp"
+ #include "green/IonicLiquid.hpp"
+ 
++using namespace Catch;
+ using namespace pcm;
+ using green::IonicLiquid;
+ 
+diff --git a/tests/green/green_spherical_diffuse.cpp b/tests/green/green_spherical_diffuse.cpp
+index 59c6eb9e..b895ea41 100644
+--- a/tests/green/green_spherical_diffuse.cpp
++++ b/tests/green/green_spherical_diffuse.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include "catch.hpp"
++#include <catch2/catch_all.hpp>
+ 
+ #include <cmath>
+ #include <iomanip>
+@@ -35,6 +35,7 @@
+ #include "green/dielectric_profile/OneLayerErf.hpp"
+ #include "green/dielectric_profile/OneLayerTanh.hpp"
+ 
++using namespace Catch;
+ using namespace pcm;
+ using dielectric_profile::OneLayerErf;
+ using dielectric_profile::OneLayerTanh;
+diff --git a/tests/green/green_spherical_sharp.cpp b/tests/green/green_spherical_sharp.cpp
+index c03e2e51..bc69610b 100644
+--- a/tests/green/green_spherical_sharp.cpp
++++ b/tests/green/green_spherical_sharp.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include "catch.hpp"
++#include <catch2/catch_all.hpp>
+ 
+ #include <cmath>
+ #include <iostream>
+@@ -32,6 +32,7 @@
+ #include "green/DerivativeTypes.hpp"
+ #include "green/SphericalSharp.hpp"
+ 
++using namespace Catch;
+ using namespace pcm;
+ using green::SphericalSharp;
+ 
+diff --git a/tests/green/green_uniform_dielectric.cpp b/tests/green/green_uniform_dielectric.cpp
+index 860545ef..896f1a88 100644
+--- a/tests/green/green_uniform_dielectric.cpp
++++ b/tests/green/green_uniform_dielectric.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include "catch.hpp"
++#include <catch2/catch_all.hpp>
+ 
+ #include <cmath>
+ #include <iostream>
+@@ -32,6 +32,7 @@
+ #include "green/DerivativeTypes.hpp"
+ #include "green/UniformDielectric.hpp"
+ 
++using namespace Catch;
+ using namespace pcm;
+ using green::UniformDielectric;
+ 
+diff --git a/tests/green/green_vacuum.cpp b/tests/green/green_vacuum.cpp
+index 8fb5b6c2..a615a632 100644
+--- a/tests/green/green_vacuum.cpp
++++ b/tests/green/green_vacuum.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include "catch.hpp"
++#include <catch2/catch_all.hpp>
+ 
+ #include <cmath>
+ #include <iostream>
+@@ -32,6 +32,7 @@
+ #include "green/DerivativeTypes.hpp"
+ #include "green/Vacuum.hpp"
+ 
++using namespace Catch;
+ using namespace pcm;
+ using green::Vacuum;
+ 
+diff --git a/tests/iefpcm/iefpcm_anisotropic-gepol-point.cpp b/tests/iefpcm/iefpcm_anisotropic-gepol-point.cpp
+index 7e483c51..e62f5404 100644
+--- a/tests/iefpcm/iefpcm_anisotropic-gepol-point.cpp
++++ b/tests/iefpcm/iefpcm_anisotropic-gepol-point.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include "catch.hpp"
++#include <catch2/catch_all.hpp>
+ 
+ #include <iostream>
+ 
+@@ -36,6 +36,7 @@
+ #include "solver/IEFSolver.hpp"
+ #include "utils/Molecule.hpp"
+ 
++using namespace Catch;
+ using namespace pcm;
+ using bi_operators::Collocation;
+ using cavity::GePolCavity;
+diff --git a/tests/iefpcm/iefpcm_anisotropic-symmetry.cpp b/tests/iefpcm/iefpcm_anisotropic-symmetry.cpp
+index dca8e296..2d120104 100644
+--- a/tests/iefpcm/iefpcm_anisotropic-symmetry.cpp
++++ b/tests/iefpcm/iefpcm_anisotropic-symmetry.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include "catch.hpp"
++#include <catch2/catch_all.hpp>
+ 
+ #include <iostream>
+ 
+@@ -35,6 +35,7 @@
+ #include "green/Vacuum.hpp"
+ #include "solver/IEFSolver.hpp"
+ 
++using namespace Catch;
+ using namespace pcm;
+ using bi_operators::Collocation;
+ using cavity::GePolCavity;
+diff --git a/tests/iefpcm/iefpcm_erf-spherical-diffuse-gepol-point.cpp b/tests/iefpcm/iefpcm_erf-spherical-diffuse-gepol-point.cpp
+index 1860724a..c1da5858 100644
+--- a/tests/iefpcm/iefpcm_erf-spherical-diffuse-gepol-point.cpp
++++ b/tests/iefpcm/iefpcm_erf-spherical-diffuse-gepol-point.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include "catch.hpp"
++#include <catch2/catch_all.hpp>
+ 
+ #include <iostream>
+ 
+@@ -37,6 +37,7 @@
+ #include "solver/IEFSolver.hpp"
+ #include "utils/Molecule.hpp"
+ 
++using namespace Catch;
+ using namespace pcm;
+ using bi_operators::Collocation;
+ using cavity::GePolCavity;
+diff --git a/tests/iefpcm/iefpcm_gepol-C2H4_D2h.cpp b/tests/iefpcm/iefpcm_gepol-C2H4_D2h.cpp
+index 6e064147..68b48bb0 100644
+--- a/tests/iefpcm/iefpcm_gepol-C2H4_D2h.cpp
++++ b/tests/iefpcm/iefpcm_gepol-C2H4_D2h.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include <catch.hpp>
++#include <catch2/catch_all.hpp>
+ 
+ #include <cmath>
+ #include <vector>
+@@ -37,6 +37,7 @@
+ #include "solver/IEFSolver.hpp"
+ #include "utils/Molecule.hpp"
+ 
++using namespace Catch;
+ using namespace pcm;
+ using bi_operators::Collocation;
+ using cavity::GePolCavity;
+diff --git a/tests/iefpcm/iefpcm_gepol-NH3.cpp b/tests/iefpcm/iefpcm_gepol-NH3.cpp
+index 6426b63f..d1c5b62d 100644
+--- a/tests/iefpcm/iefpcm_gepol-NH3.cpp
++++ b/tests/iefpcm/iefpcm_gepol-NH3.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include "catch.hpp"
++#include <catch2/catch_all.hpp>
+ 
+ #include <iostream>
+ 
+@@ -37,6 +37,7 @@
+ #include "utils/Molecule.hpp"
+ #include "utils/Symmetry.hpp"
+ 
++using namespace Catch;
+ using namespace pcm;
+ using bi_operators::Collocation;
+ using cavity::GePolCavity;
+diff --git a/tests/iefpcm/iefpcm_gepol-NH3_from-file.cpp b/tests/iefpcm/iefpcm_gepol-NH3_from-file.cpp
+index 35a4de01..eff99d0c 100644
+--- a/tests/iefpcm/iefpcm_gepol-NH3_from-file.cpp
++++ b/tests/iefpcm/iefpcm_gepol-NH3_from-file.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include "catch.hpp"
++#include <catch2/catch_all.hpp>
+ 
+ #include <iostream>
+ 
+@@ -34,6 +34,7 @@
+ #include "green/Vacuum.hpp"
+ #include "solver/IEFSolver.hpp"
+ 
++using namespace Catch;
+ using namespace pcm;
+ using bi_operators::Collocation;
+ using cavity::GePolCavity;
+diff --git a/tests/iefpcm/iefpcm_gepol-point.cpp b/tests/iefpcm/iefpcm_gepol-point.cpp
+index 884cc0a9..dbbbaba6 100644
+--- a/tests/iefpcm/iefpcm_gepol-point.cpp
++++ b/tests/iefpcm/iefpcm_gepol-point.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include "catch.hpp"
++#include <catch2/catch_all.hpp>
+ 
+ #include <iostream>
+ 
+@@ -35,6 +35,7 @@
+ #include "green/Vacuum.hpp"
+ #include "solver/IEFSolver.hpp"
+ 
++using namespace Catch;
+ using namespace pcm;
+ using bi_operators::Collocation;
+ using cavity::GePolCavity;
+diff --git a/tests/iefpcm/iefpcm_gepol-point_from-file.cpp b/tests/iefpcm/iefpcm_gepol-point_from-file.cpp
+index 2175495b..95fd907a 100644
+--- a/tests/iefpcm/iefpcm_gepol-point_from-file.cpp
++++ b/tests/iefpcm/iefpcm_gepol-point_from-file.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include "catch.hpp"
++#include <catch2/catch_all.hpp>
+ 
+ #include <iostream>
+ 
+@@ -35,6 +35,7 @@
+ #include "solver/IEFSolver.hpp"
+ #include "utils/Molecule.hpp"
+ 
++using namespace Catch;
+ using namespace pcm;
+ using bi_operators::Collocation;
+ using cavity::GePolCavity;
+diff --git a/tests/iefpcm/iefpcm_log-spherical-diffuse-gepol-point.cpp b/tests/iefpcm/iefpcm_log-spherical-diffuse-gepol-point.cpp
+index 2965060f..eb9eb23c 100644
+--- a/tests/iefpcm/iefpcm_log-spherical-diffuse-gepol-point.cpp
++++ b/tests/iefpcm/iefpcm_log-spherical-diffuse-gepol-point.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include "catch.hpp"
++#include <catch2/catch_all.hpp>
+ 
+ #include <iostream>
+ 
+@@ -36,6 +36,7 @@
+ #include "solver/IEFSolver.hpp"
+ #include "utils/Molecule.hpp"
+ 
++using namespace Catch;
+ using namespace pcm;
+ using bi_operators::Collocation;
+ using cavity::GePolCavity;
+diff --git a/tests/iefpcm/iefpcm_sharp-gepol-point.cpp b/tests/iefpcm/iefpcm_sharp-gepol-point.cpp
+index bcb087f7..bb2bbb71 100644
+--- a/tests/iefpcm/iefpcm_sharp-gepol-point.cpp
++++ b/tests/iefpcm/iefpcm_sharp-gepol-point.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include "catch.hpp"
++#include <catch2/catch_all.hpp>
+ 
+ #include <iostream>
+ 
+@@ -36,6 +36,7 @@
+ #include "solver/IEFSolver.hpp"
+ #include "utils/Molecule.hpp"
+ 
++using namespace Catch;
+ using namespace pcm;
+ using bi_operators::Collocation;
+ using cavity::GePolCavity;
+diff --git a/tests/iefpcm/iefpcm_symmetry.cpp b/tests/iefpcm/iefpcm_symmetry.cpp
+index af310646..2ec578c9 100644
+--- a/tests/iefpcm/iefpcm_symmetry.cpp
++++ b/tests/iefpcm/iefpcm_symmetry.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include "catch.hpp"
++#include <catch2/catch_all.hpp>
+ 
+ #include <iostream>
+ 
+@@ -36,6 +36,7 @@
+ #include "solver/IEFSolver.hpp"
+ #include "utils/Molecule.hpp"
+ 
++using namespace Catch;
+ using namespace pcm;
+ using bi_operators::Collocation;
+ using cavity::GePolCavity;
+diff --git a/tests/iefpcm/iefpcm_tanh-spherical-diffuse-gepol-point.cpp b/tests/iefpcm/iefpcm_tanh-spherical-diffuse-gepol-point.cpp
+index b5895c73..859a9581 100644
+--- a/tests/iefpcm/iefpcm_tanh-spherical-diffuse-gepol-point.cpp
++++ b/tests/iefpcm/iefpcm_tanh-spherical-diffuse-gepol-point.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include "catch.hpp"
++#include <catch2/catch_all.hpp>
+ 
+ #include <iostream>
+ 
+@@ -37,6 +37,7 @@
+ #include "solver/IEFSolver.hpp"
+ #include "utils/Molecule.hpp"
+ 
++using namespace Catch;
+ using namespace pcm;
+ using bi_operators::Collocation;
+ using cavity::GePolCavity;
+diff --git a/tests/input/input_cpcm.cpp b/tests/input/input_cpcm.cpp
+index 8ccd012d..c92f0487 100644
+--- a/tests/input/input_cpcm.cpp
++++ b/tests/input/input_cpcm.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include "catch.hpp"
++#include <catch2/catch_all.hpp>
+ 
+ #include <iostream>
+ #include <string>
+@@ -36,6 +36,7 @@
+ #include "solver/SolverData.hpp"
+ #include "utils/Sphere.hpp"
+ 
++using namespace Catch;
+ using pcm::Input;
+ using pcm::utils::Sphere;
+ 
+diff --git a/tests/input/input_diffuse.cpp b/tests/input/input_diffuse.cpp
+index 40502590..17d21abe 100644
+--- a/tests/input/input_diffuse.cpp
++++ b/tests/input/input_diffuse.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include "catch.hpp"
++#include <catch2/catch_all.hpp>
+ 
+ #include <iostream>
+ #include <string>
+@@ -36,6 +36,7 @@
+ #include "solver/SolverData.hpp"
+ #include "utils/Sphere.hpp"
+ 
++using namespace Catch;
+ using pcm::Input;
+ using pcm::utils::Sphere;
+ 
+diff --git a/tests/input/input_multipoles.cpp b/tests/input/input_multipoles.cpp
+index 9a70d42e..5b8b499e 100644
+--- a/tests/input/input_multipoles.cpp
++++ b/tests/input/input_multipoles.cpp
+@@ -23,7 +23,7 @@
+  */
+ /* pcmsolver_copyright_end */
+ 
+-#include "catch.hpp"
++#include <catch2/catch_all.hpp>
+ 
+ #include <iostream>
+ #include <string>
+@@ -40,6 +40,7 @@
+ #include "solver/SolverData.hpp"
+ #include "utils/Sphere.hpp"
+ 
++using namespace Catch;
+ using pcm::Input;
+ using pcm::utils::Sphere;
+ 
+diff --git a/tests/input/input_restart.cpp b/tests/input/input_restart.cpp
+index 1be278b3..f08994d7 100644
+--- a/tests/input/input_restart.cpp
++++ b/tests/input/input_restart.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include "catch.hpp"
++#include <catch2/catch_all.hpp>
+ 
+ #include <iostream>
+ #include <string>
+@@ -36,6 +36,7 @@
+ #include "solver/SolverData.hpp"
+ #include "utils/Sphere.hpp"
+ 
++using namespace Catch;
+ using pcm::Input;
+ using pcm::utils::Sphere;
+ 
+diff --git a/tests/input/input_sharp.cpp b/tests/input/input_sharp.cpp
+index 84b9bf3b..a4b59c86 100644
+--- a/tests/input/input_sharp.cpp
++++ b/tests/input/input_sharp.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include "catch.hpp"
++#include <catch2/catch_all.hpp>
+ 
+ #include <iostream>
+ #include <string>
+@@ -36,6 +36,7 @@
+ #include "solver/SolverData.hpp"
+ #include "utils/Sphere.hpp"
+ 
++using namespace Catch;
+ using pcm::Input;
+ using pcm::utils::Sphere;
+ 
+diff --git a/tests/numerical_quadrature/numerical_quadrature.cpp b/tests/numerical_quadrature/numerical_quadrature.cpp
+index d3518429..cda9a7d5 100644
+--- a/tests/numerical_quadrature/numerical_quadrature.cpp
++++ b/tests/numerical_quadrature/numerical_quadrature.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include "catch.hpp"
++#include <catch2/catch_all.hpp>
+ 
+ #include <cmath>
+ #include <iomanip>
+@@ -37,6 +37,7 @@
+ #include "utils/MathUtils.hpp"
+ #include "utils/cnpy.hpp"
+ 
++using namespace Catch;
+ using namespace pcm;
+ using bi_operators::integrateD;
+ using bi_operators::integrateS;
+diff --git a/tests/unit_tests.cpp b/tests/unit_tests.cpp
+index 328bc0e6..985bfa75 100644
+--- a/tests/unit_tests.cpp
++++ b/tests/unit_tests.cpp
+@@ -22,7 +22,7 @@
+  */
+ 
+ #define CATCH_CONFIG_RUNNER
+-#include "catch.hpp"
++#include <catch2/catch_all.hpp>
+ 
+ #include "Config.hpp"
+ 
+diff --git a/tests/utils/utils_dipolar-potential.cpp b/tests/utils/utils_dipolar-potential.cpp
+index a2d220b3..faa063a1 100644
+--- a/tests/utils/utils_dipolar-potential.cpp
++++ b/tests/utils/utils_dipolar-potential.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include "catch.hpp"
++#include <catch2/catch_all.hpp>
+ 
+ #include <cmath>
+ #include <vector>
+@@ -35,6 +35,7 @@
+ #include "green/Vacuum.hpp"
+ #include "utils/ChargeDistribution.hpp"
+ 
++using namespace Catch;
+ using namespace pcm;
+ using cavity::GePolCavity;
+ using green::IonicLiquid;
+diff --git a/tests/utils/utils_newton-potential.cpp b/tests/utils/utils_newton-potential.cpp
+index f8c6fbd7..ae90998a 100644
+--- a/tests/utils/utils_newton-potential.cpp
++++ b/tests/utils/utils_newton-potential.cpp
+@@ -21,7 +21,7 @@
+  * PCMSolver API, see: <http://pcmsolver.readthedocs.io/>
+  */
+ 
+-#include "catch.hpp"
++#include <catch2/catch_all.hpp>
+ 
+ #include <cmath>
+ #include <vector>
+@@ -35,6 +35,7 @@
+ #include "green/Vacuum.hpp"
+ #include "utils/ChargeDistribution.hpp"
+ 
++using namespace Catch;
+ using namespace pcm;
+ using cavity::GePolCavity;
+ using green::IonicLiquid;
+-- 
+2.43.0
+

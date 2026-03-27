@@ -2,7 +2,7 @@
 
 set -ex
 
-rm -rf external/eigen3
+rm -rf external/eigen3 external/Catch
 
 ARCH_ARGS=""
 if [ "$(uname)" == "Darwin" ]; then
