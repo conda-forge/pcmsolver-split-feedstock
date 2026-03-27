@@ -59,12 +59,12 @@ if [[ "$target_platform" == "linux-aarch64" || "$target_platform" == "linux-ppc6
     ctest --rerun-failed --output-on-failure -j${CPU_COUNT} -E 'SPD|gauss-failure|green_spherical_diffuse|standalone'
     # green_spherical_diffuse excluded b/c failing on aarch64 and long duration for emulated
     # green_spherical_diffuse on linux-64 works fine locally but suddenly (Apr 2025) fails with no output. still tested on osx-64
-    ctest --rerun-failed --output-on-failure -R 'standalone'
+    ctest -R 'standalone'
 else
     ctest --rerun-failed --output-on-failure -j${CPU_COUNT} -E 'SPD|gauss-failure|standalone'
     # SPD-failure test excluded after patch 0005 that commutes the fail
     # gauss-failure test exluded after patch 0007 that commutes the fail
-    ctest --rerun-failed --output-on-failure -R 'standalone'
+    ctest -R 'standalone'
 fi
 fi
 
