@@ -1,5 +1,7 @@
 @ECHO ON
 
+rd /s /q external\eigen3
+
 cmake %CMAKE_ARGS% ^
   -G "Ninja" ^
   -S %SRC_DIR% ^
@@ -15,7 +17,7 @@ cmake %CMAKE_ARGS% ^
   -D CMAKE_INSTALL_DATADIR="share" ^
   -D PYMOD_INSTALL_LIBDIR="/../../Lib/site-packages" ^
   -D Python_EXECUTABLE="%PYTHON%" ^
-  -D EIGEN3_ROOT="%LIBRARY_PREFIX%" ^
+  -D Eigen3_ROOT="%LIBRARY_PREFIX%" ^
   -D CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON ^
   -D CMAKE_GNUtoMS=ON ^
   -D BUILD_TESTING=OFF ^
