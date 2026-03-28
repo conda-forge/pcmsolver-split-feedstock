@@ -1,7 +1,6 @@
 @ECHO ON
 
 rd /s /q external\eigen3
-rd /s /q external\Catch2
 
 cmake %CMAKE_ARGS% ^
   -G "Ninja" ^
