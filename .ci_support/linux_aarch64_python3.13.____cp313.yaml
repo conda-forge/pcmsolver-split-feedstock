@@ -21,9 +21,9 @@ fortran_compiler:
 fortran_compiler_version:
 - '14'
 libboost_devel:
-- '1.86'
+- '1.88'
 libboost_headers:
-- '1.86'
+- '1.88'
 pin_run_as_build:
   python:
     min_pin: x.x
