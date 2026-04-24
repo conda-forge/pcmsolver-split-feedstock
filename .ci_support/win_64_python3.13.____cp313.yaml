@@ -3,9 +3,9 @@ channel_sources:
 channel_targets:
 - conda-forge main
 libboost_devel:
-- '1.88'
+- '1.90'
 libboost_headers:
-- '1.88'
+- '1.90'
 m2w64_c_compiler:
 - gcc
 m2w64_c_compiler_version:
