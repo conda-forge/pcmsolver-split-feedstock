@@ -23,6 +23,7 @@ source:
     - 0009-external-and-modernize-Catch2.patch  # [unix]
     - 0010-external-and-v5-ok-Eigen3.patch
     - 0011-avoid-sre_constants.patch
+    - 0012-final-osx-path-to-avoid-merge-and-wrong-discard-by-c.patch
   sha256: {{ sha256 }}
 
 build:
@@ -140,13 +141,13 @@ outputs:
         # Verify library
         - test -L $PREFIX/lib/libpcm$SHLIB_EXT                         # [unix]
         - test ! -f $PREFIX/lib/libpcm.a                               # [unix]
-        - if not exist %PREFIX%\\Library\\lib\\libpcm.dll.a exit 1     # [win and py<315]   # gnu import lib
-        - if not exist %PREFIX%\\Library\\lib\\libpcm.lib exit 1       # [win and py<315]   # ms import lib
-        - if not exist %PREFIX%\\Library\\bin\\libpcm.dll exit 1       # [win and py<315]   # gnu/ms dyn lib
-        - if exist %PREFIX%\\Library\\lib\\libpcm.a exit 1             # [win and py<315]   # gnu static lib removed
+        - if not exist %PREFIX%\\Library\\lib\\libpcm.dll.a exit 1     # [win]   # gnu import lib
+        - if not exist %PREFIX%\\Library\\lib\\libpcm.lib exit 1       # [win]   # ms import lib
+        - if not exist %PREFIX%\\Library\\bin\\libpcm.dll exit 1       # [win]   # gnu/ms dyn lib
+        - if exist %PREFIX%\\Library\\lib\\libpcm.a exit 1             # [win]   # gnu static lib removed
         # Verify executable
         - test -f $PREFIX/bin/run_pcm                                  # [unix]
-        - if not exist %PREFIX%\\Library\\bin\\run_pcm.exe exit 1      # [win and py<315]
+        - if not exist %PREFIX%\\Library\\bin\\run_pcm.exe exit 1      # [win]
         # Verify accessories
         - test -e $PREFIX/include/PCMSolver/pcmsolver.h                # [unix]
         - test -e $PREFIX/share/cmake/PCMSolver/PCMSolverConfig.cmake  # [unix]

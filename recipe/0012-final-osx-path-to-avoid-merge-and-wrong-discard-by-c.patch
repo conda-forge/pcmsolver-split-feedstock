@@ -1,0 +1,35 @@
+From 9cf5cd6450a0779c7824bb1fbbe88444f1fef210 Mon Sep 17 00:00:00 2001
+From: "Lori A. Burns" <lori.burns@gmail.com>
+Date: Sun, 11 Oct 2026 03:49:19 -0400
+Subject: [PATCH 1/1] final osx path to avoid merge and wrong discard by conda
+
+---
+ src/bin/CMakeLists.txt | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/src/bin/CMakeLists.txt b/src/bin/CMakeLists.txt
+index b03df784..abb89ecc 100644
+--- a/src/bin/CMakeLists.txt
++++ b/src/bin/CMakeLists.txt
+@@ -17,12 +17,17 @@ target_compile_options(run_pcm
+   PRIVATE
+     "$<$<CONFIG:DEBUG>:${EXDIAG_CXX_FLAGS}>"
+   )
++if(APPLE)
++  set(pcm_exe_install_rpath "@loader_path/../${CMAKE_INSTALL_LIBDIR}")
++else()
++  set(pcm_exe_install_rpath "$ORIGIN/../${CMAKE_INSTALL_LIBDIR}")
++endif()
+ set_target_properties(run_pcm
+   PROPERTIES
+     MACOSX_RPATH ON
+     SKIP_BUILD_RPATH OFF
+     BUILD_WITH_INSTALL_RPATH OFF
+-    INSTALL_RPATH "$ORIGIN/../${CMAKE_INSTALL_LIBDIR}"
++    INSTALL_RPATH "${pcm_exe_install_rpath}"
+     INSTALL_RPATH_USE_LINK_PATH ON
+     EXPORT_NAME "exe"
+   )
+-- 
+2.54.0
+
