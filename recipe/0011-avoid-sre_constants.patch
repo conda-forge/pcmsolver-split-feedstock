@@ -1,0 +1,42 @@
+From 9272f834a5391f865011a32cf3e973376c6f44c2 Mon Sep 17 00:00:00 2001
+From: "Lori A. Burns" <lori.burns@gmail.com>
+Date: Sat, 10 Oct 2026 19:15:37 -0400
+Subject: [PATCH] avoid sre_constants
+
+---
+ tools/pyparsing.py | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/tools/pyparsing.py b/tools/pyparsing.py
+index b0161c1b..51716c80 100644
+--- a/tools/pyparsing.py
++++ b/tools/pyparsing.py
+@@ -67,7 +67,6 @@ import copy
+ import sys
+ import warnings
+ import re
+-import sre_constants
+ import collections
+ import pprint
+ #~ sys.stderr.write( "testing pyparsing module, version %s, %s\n" % (__version__,__versionTime__ ) )
+@@ -1957,7 +1956,7 @@ class Regex(Token):
+             try:
+                 self.re = re.compile(self.pattern, self.flags)
+                 self.reString = self.pattern
+-            except sre_constants.error:
++            except re.error:
+                 warnings.warn("invalid pattern (%s) passed to Regex" % pattern, SyntaxWarning, stacklevel=2)
+                 raise
+
+@@ -2067,7 +2066,7 @@ class QuotedString(Token):
+         try:
+             self.re = re.compile(self.pattern, self.flags)
+             self.reString = self.pattern
+-        except sre_constants.error:
++        except re.error:
+             warnings.warn("invalid pattern (%s) passed to Regex" % self.pattern, SyntaxWarning, stacklevel=2)
+             raise
+
+--
+2.43.0
+

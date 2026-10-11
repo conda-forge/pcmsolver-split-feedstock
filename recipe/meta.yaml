@@ -1,7 +1,7 @@
 {% set name = "PCMSolver" %}
 {% set version = "1.2.3" %}
 {% set sha256 = "d1ef6bdc268a2e719b36c85125c3543df7a26e1a738daf4483f4ded0c76f5b60" %}
-{% set build = 17 %}
+{% set build = 18 %}
 
 package:
   name: {{ name|lower }}-split
@@ -22,6 +22,8 @@ source:
     - 0008-win-path-re-fixes.patch
     - 0009-external-and-modernize-Catch2.patch  # [unix]
     - 0010-external-and-v5-ok-Eigen3.patch
+    - 0011-avoid-sre_constants.patch
+    - 0012-final-osx-path-to-avoid-merge-and-wrong-discard-by-c.patch
   sha256: {{ sha256 }}
 
 build:
